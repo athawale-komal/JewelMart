@@ -1,6 +1,6 @@
 const Payment = require("../models/Payment.js");
 const razorpay = require("../config/PAYMENT.js");
-const OrderService = require("../services/OrderService.js");
+const OrderService = require("../Services/OrderService.js");
 
 const createPaymentLink = async (orderId) => {
     const order = await OrderService.findOrderById(orderId);
@@ -23,7 +23,7 @@ const createPaymentLink = async (orderId) => {
         },
         notify: { sms: true, email: true },
         reminder_enable: true,
-        callback_url: `http://localhost:8585/api/payment/callback?orderId=${orderId}`,
+        callback_url: `http://localhost:8080/api/jwellmart/callback?orderId=${orderId}`,
         callback_method: "get"
 
     });

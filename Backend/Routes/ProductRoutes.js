@@ -1,13 +1,15 @@
 const express = require ("express");
 const router = express.Router();
+const authenticate = require('../Middleware/Authenticate.js');
 const admin = require ("../Middleware/admin.js");
 const Product_Controller  = require ("../Controllers/ProductController.js");
 const { uploadProduct } = require ("../Config/cloudinary.js");
-const authenticate = require('../middleware/Authenticate');
+
+router.get("/product/all", Product_Controller.getAllProducts);
 
 /* ADMIN */
 router.post(
-  "/create",
+  "/product/create",
   authenticate,
   admin("ADMIN"),
   uploadProduct,
@@ -15,7 +17,7 @@ router.post(
 );
 
 router.put(
-  "/:id",
+  "/product/update/:id",
   authenticate,
   admin("ADMIN"),
   uploadProduct,
@@ -23,17 +25,16 @@ router.put(
 );
 
 router.delete(
-  "/:id",
+  "/product/delete/:id",
   authenticate,
   admin("ADMIN"),
   Product_Controller.deleteProduct
 );
 
 /* PUBLIC */
-router.get("/hot-deals", Product_Controller.getHotDeals);
-router.get("/category/:category", Product_Controller.getProductsByCategory);
-router.get("/:id/related", Product_Controller.getRelatedProducts);
-router.get("/:id", Product_Controller.findProductById);
-router.get("/", Product_Controller.getAllProducts);
+router.get("/product/hot-deals", Product_Controller.getHotDeals);
+router.get("/product/category/:category", Product_Controller.getProductsByCategory);
+router.get("/product/related/:id", Product_Controller.getRelatedProducts);
+router.get("/product/:id", Product_Controller.findProductById);
 
 module.exports = router;

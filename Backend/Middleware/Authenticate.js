@@ -1,10 +1,10 @@
 const JWT_PROVIDER = require('../config/JWT');
-const UserService = require('../Services/UserService');
+const UserService = require('../services/UserService');
 
 const authenticate = async (req, res, next) => {
     try {
         const token = req.headers.authorization?.split(" ")[1];
-
+        
         // If User Not Pass Generated Token Throw Error
         if (!token) return res.status(401).json({ message: "Token Not Found" });
 

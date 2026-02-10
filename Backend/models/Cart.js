@@ -1,4 +1,4 @@
-const mongoose= require  ("mongoose");
+const mongoose  = require ("mongoose");
 
 const cartSchema = new mongoose.Schema(
   {
@@ -14,7 +14,7 @@ const cartSchema = new mongoose.Schema(
       default: 0,
     },
 
-    totalDiscountPrice: {
+    totalPayable: {
       type: Number,
       default: 0,
     },
@@ -33,4 +33,4 @@ const cartSchema = new mongoose.Schema(
 );
 
 const Cart = mongoose.model("cart", cartSchema);
-module.exports = Cart;
+module.exports= Cart

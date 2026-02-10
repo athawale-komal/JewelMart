@@ -1,8 +1,8 @@
 const Address = require("../models/Address.js");
 const Order = require("../models/Order.js");
-const CartService = require("../Services/CartService.js");
+const CartService = require("../services/CartService.js");
 const OrderItem = require("../models/OrderItems.js");
-const { sendEmail } = require("../Config/email.js");
+const { sendEmail } = require("../config/email.js");
 const orderEmailTemplate = require('../utils/emailTemplate.js');
 
 // CLACULATE PRODUCT DISCOUNT
@@ -41,6 +41,7 @@ const createOrder = async (user, shippingAddress) => {
     address = await Address.create({
       ...shippingAddress,
       user: user._id,
+    
     });
   }
 
@@ -54,11 +55,13 @@ const createOrder = async (user, shippingAddress) => {
 
 
   for (const item of items) {
+
     const orderItem = await OrderItem.create({
       product: item.product._id,
      skuCode: item.product.productSku,
       quantity: item.quantity,
       price: item.price,
+      stock:item.stock,
       discountedPrice: item.discountedPrice,
       discount: item.price - item.discountedPrice,
       userId: user._id,

@@ -1,6 +1,6 @@
-const PaymentService = require ("../services/PaymentService.js");
+const PaymentService = require ("../Services/PaymentService.js");
 const Payment = require('../models/Payment.js')
-const OrderService  = require ('../services/OrderService.js')
+const OrderService  = require ('../Services/OrderService.js')
 const createPaymentLink = async (req, res) => {
   try {
     const result = await PaymentService.createPaymentLink(req.params.orderId);

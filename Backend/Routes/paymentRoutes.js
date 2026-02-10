@@ -1,12 +1,12 @@
 const express = require ("express");
 const PaymentController  = require("../Controllers/PaymentController.js");
-const authenticate = require ("../Middleware/Authenticate.js");
+const authenticate = require ("../middleware/authenticate.js");
 
 const router = express.Router();
 
 // create payment link
 router.post(
-  "/create/:orderId",
+  "/payment/create/:orderId",
   authenticate,
   PaymentController.createPaymentLink
 );
