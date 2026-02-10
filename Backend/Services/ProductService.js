@@ -38,22 +38,22 @@ const createProduct = async (reqData, files) => {
 // GET ALL PRODUCTS
 const getAllProducts = async () => {
   return await Product.find()
-    // .populate("ratings")
-    // .populate("reviews");
+    .populate("ratings")
+    .populate("reviews");
 };
 
 // GET BY CATEGORY 
 const getProductsByCategory = async (category) => {
   return await Product.find({ category })
-    // .populate("ratings")
-    // .populate("reviews");
+    .populate("ratings")
+    .populate("reviews");
 };
 
 // FIND BY ID
 const findProductById = async (id) => {
   const product = await Product.findById(id)
-    // .populate("ratings")
-    // .populate("reviews");
+    .populate("ratings")
+    .populate("reviews");
 
   if (!product) throw new Error("Product not found");
   return product;

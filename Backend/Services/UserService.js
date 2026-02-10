@@ -52,7 +52,7 @@ const findUserByEmail = async (email) => {
 };
 
 const findUserById = async (userId) => {
-    return await User.findById(userId).select('-password -resetPasswordToken -resetPasswordExpires');
+    return await User.findById(userId).select('-password -resetPasswordToken -resetPasswordExpires').populate('reviews').populate('ratings');
 };
 
 /* -------------------- GET ALL USERS (ADMIN) -------------------- */
