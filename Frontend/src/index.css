@@ -1,0 +1,8 @@
+@import "tailwindcss";
+.dropdown-link {
+  @apply block px-4 py-2 text-gray-700 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition;
+}
+
+.mobile-link {
+  @apply block px-4 py-2 rounded-lg text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition;
+}
