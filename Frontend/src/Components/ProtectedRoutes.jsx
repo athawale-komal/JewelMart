@@ -1,9 +1,9 @@
-
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const ProtectedRoutes = ({ children, requiredRole }) => {
     const { user, jwt, loading } = useSelector(state => state.auth);
+    
     const location = useLocation();
 
     if (loading) {

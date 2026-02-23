@@ -2,39 +2,39 @@ const mongoose = require('mongoose');
 
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Enter Your Name"]
-    },
-    surname: {
-        type: String,
-        required: [true, "Enter Your Surname"]
-    },
-    mobile: {
-        type: Number,
-        required: [true, "Enter Your Mobile No"]
-    },
-    email: {
-        type: String,
-        required: [true, "Enter Your Email"]
-    },
-     password: {
-        type: String,
-        required: [true, "Enter Your Password"]
-    },
-    role:{
-        type:String,
-        enum:['CUSTOMER','ADMIN'],
-        default:"CUSTOMER"
-    },
-    photo:{
-        type:String,
-    },
-    wishlist: [
+  name: {
+    type: String,
+    required: [true, "Enter Your Name"]
+  },
+  surname: {
+    type: String,
+    required: [true, "Enter Your Surname"]
+  },
+  mobile: {
+    type: Number,
+    required: [true, "Enter Your Mobile No"]
+  },
+  email: {
+    type: String,
+    required: [true, "Enter Your Email"]
+  },
+  password: {
+    type: String,
+    required: [true, "Enter Your Password"]
+  },
+  role: {
+    type: String,
+    enum: ['CUSTOMER', 'ADMIN'],
+    default: "CUSTOMER"
+  },
+  photo: {
+    type: String,
+  },
+  wishlist: [
     {
       productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "products", 
+        ref: "products",
         required: true,
       },
       addedAt: {
@@ -43,24 +43,24 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-    ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: "ratings" }],
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
-    createdAt:{
-        type:Date,
-        default:Date.now()
-    },
+  ratings: [{ type: mongoose.Schema.Types.ObjectId, ref: "ratings" }],
+  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "reviews" }],
+  createdAt: {
+    type: Date,
+    default: Date.now()
+  },
 
-           resetPasswordToken: {
+  resetPasswordToken: {
     type: String
   },
 
   resetPasswordExpires: {
     type: Date
   },
-  
+
 
 })
 
 
-const User = mongoose.model('users',userSchema);
+const User = mongoose.model('users', userSchema);
 module.exports = User

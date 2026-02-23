@@ -1,0 +1,45 @@
+ @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Poppins:wght@300;400;500;600&display=swap');
+
+ .hdr {
+     font-family: 'Poppins', sans-serif;
+ }
+
+ .hdr-logo {
+     font-family: 'Cormorant Garamond', serif;
+ }
+
+ .dropdown-enter {
+     animation: dropIn .18s cubic-bezier(.16, 1, .3, 1) both;
+ }
+
+ @keyframes dropIn {
+     from {
+         opacity: 0;
+         transform: translateY(-6px) scale(.98);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0) scale(1);
+     }
+ }
+
+ .mobile-enter {
+     animation: slideDown .22s cubic-bezier(.16, 1, .3, 1) both;
+ }
+
+ @keyframes slideDown {
+     from {
+         opacity: 0;
+         transform: translateY(-8px);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0);
+     }
+ }
+
+ .search-glow:focus {
+     box-shadow: 0 0 0 2px rgba(180, 130, 40, 0.25);
+ }

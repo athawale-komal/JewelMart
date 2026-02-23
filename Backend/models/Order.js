@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
       ref: "users",
       required: true,
     },
+
     orderItems: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -14,19 +15,23 @@ const orderSchema = new mongoose.Schema(
         required: true,
       },
     ],
+
     orderDate: {
       type: Date,
       default: Date.now,
     },
+
     deliveryDate: {
       type: Date,
       default: null,
     },
+
     shippingAddress: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "addresses",
       required: true,
     },
+
     paymentDetails: {
       paymentMethod: { type: String, default: null },
       transactionId: { type: String, default: null },
@@ -37,23 +42,35 @@ const orderSchema = new mongoose.Schema(
         default: "PENDING",
       },
     },
+
     totalPrice: {
       type: Number,
       required: true,
     },
+
     totalDiscountPrice: {
       type: Number,
       required: true,
     },
+
     discount: {
       type: Number,
       required: true,
     },
+
     orderStatus: {
       type: String,
-      enum: ["PENDING","CONFIRMED","PLACED", "SHIPPED", "DELIVERED", "CANCELLED"],
+      enum: [
+        "PENDING",
+        "CONFIRMED",
+        "PLACED",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+      ],
       default: "PENDING",
     },
+
     totalItem: {
       type: Number,
       required: true,
@@ -64,5 +81,4 @@ const orderSchema = new mongoose.Schema(
 
 const Order = mongoose.model("Order", orderSchema);
 
-module.exports = Order
-  
+module.exports = Order;

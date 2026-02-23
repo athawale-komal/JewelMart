@@ -3,8 +3,9 @@ const { generateProductSku, generateSkuCode } = require("../utils/generateSku");
 
 // CREATE PRODUCT
 const createProduct = async (reqData, files) => {
-  const file = files?.[0];
-  if (!file?.path) throw new Error("Product image required");
+  if (!files || files.length === 0) {
+    throw new Error("At least one product image is required");
+  }
 
   const productSku = generateProductSku(reqData.title, reqData.brand);
 
@@ -22,14 +23,15 @@ const createProduct = async (reqData, files) => {
     title: reqData.title,
     brand: reqData.brand,
     category: reqData.category,
+    metalType: reqData.metalType,   
+    purity: reqData.purity,         
     description: reqData.description,
-    stock:reqData.stock,
-    image: file.path,
+    stock: reqData.stock,
+    images: files.map((file) => file.path), 
     price,
     discountedPrice,
     discount,
     tag: reqData.tag,
-    offers: reqData.offers ? JSON.parse(reqData.offers) : [],
   });
 
   return await product.save();
@@ -85,39 +87,35 @@ const updateProduct = async (productId, reqData, files) => {
   const product = await Product.findById(productId);
   if (!product) throw new Error("Product not found");
 
-  if (files?.[0]?.path) {
-    product.image = files[0].path;
+  // Update Images (Replace All)
+  if (files && files.length > 0) {
+    product.images = files.map((file) => file.path);
   }
 
   product.title = reqData.title ?? product.title;
   product.brand = reqData.brand ?? product.brand;
   product.tag = reqData.tag ?? product.tag;
-   product.stock = reqData.stock ?? product.stock;
+  product.stock = reqData.stock ?? product.stock;
   product.category = reqData.category ?? product.category;
   product.description = reqData.description ?? product.description;
-  product.price = reqData.price ?? product.price;
-  product.discountedPrice = reqData.discountedPrice ?? product.discountedPrice;
-  product.discount = reqData.discount ?? product.discount;
+
+  // Jewelry Fields
+  product.metalType = reqData.metalType ?? product.metalType;
+  product.purity = reqData.purity ?? product.purity;
+
+  // Price Calculation
+  if (reqData.price) product.price = Number(reqData.price);
+  if (reqData.discountedPrice)
+    product.discountedPrice = Number(reqData.discountedPrice);
+
+  product.discount =
+    reqData.discount ??
+    Math.round(
+      ((product.price - product.discountedPrice) / product.price) * 100
+    );
 
   if (reqData.offers) {
     product.offers = JSON.parse(reqData.offers);
-  }
-
-  if (reqData.skus) {
-    const skus = JSON.parse(reqData.skus);
-    product.skus = skus.map((s) => {
-      const discountedPrice = s.discountedPrice ?? s.price;
-      const discount =
-        s.discount ??
-        Math.round(((s.price - discountedPrice) / s.price) * 100);
-
-      return {
-        ...s,
-        skuCode: generateSkuCode(product.productSku, s.weight),
-        discountedPrice,
-        discount,
-      };
-    });
   }
 
   return await product.save();
@@ -128,7 +126,7 @@ const getHotDeals = async (limit = 10) => {
   return await Product.find({ discount: { $gt: 0 } })
     .sort({ discount: -1 })
     .limit(Number(limit))
-    .select("title brand category image price discountedPrice discount skus");
+    .select("title brand category images price discountedPrice discount skus");
 };
 
 module.exports = {

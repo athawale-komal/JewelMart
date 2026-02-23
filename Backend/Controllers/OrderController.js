@@ -1,80 +1,136 @@
-const OrderService = require ("../services/OrderService.js");
+const OrderService = require("../Services/OrderService.js");
 
+/* ================= CREATE ORDER ================= */
 
-// Create order from cart
 const createOrder = async (req, res) => {
   try {
     const user = req.user;
     const shippingAddress = req.body.shippingAddress;
 
     if (!shippingAddress) {
-      return res.status(400).json({ success: false, error: "Shipping address required" });
+      return res.status(400).json({
+        success: false,
+        error: "Shipping address required",
+      });
     }
 
     const order = await OrderService.createOrder(user, shippingAddress);
-    return res.status(201).json({ success: true, data: order });
+
+    return res.status(201).json({
+      success: true,
+      data: order,
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
-// Get logged-in user's orders
+/* ================= USER ORDERS ================= */
+
 const getUserOrders = async (req, res) => {
   try {
     const orders = await OrderService.userOrderHistory(req.user._id);
-    return res.status(200).json({ success: true, data: orders });
+
+    return res.status(200).json({
+      success: true,
+      data: orders,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// Get single order (only user's own)
+/* ================= GET SINGLE ORDER ================= */
+
 const getOrderById = async (req, res) => {
   try {
     const order = await OrderService.findOrderById(req.params.id);
 
     if (order.user._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, error: "Unauthorized" });
+      return res.status(403).json({
+        success: false,
+        error: "Unauthorized",
+      });
     }
 
-    return res.status(200).json({ success: true, data: order });
+    return res.status(200).json({
+      success: true,
+      data: order,
+    });
   } catch (err) {
-    return res.status(404).json({ success: false, error: err.message });
+    return res.status(
+      err.message === "Order not found" ? 404 : 500
+    ).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// Cancel user's own order
+/* ================= CANCEL ORDER (USER) ================= */
+
 const cancelOrder = async (req, res) => {
   try {
     const order = await OrderService.findOrderById(req.params.id);
 
     if (order.user._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, error: "Unauthorized" });
+      return res.status(403).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    // Prevent cancelling shipped/delivered orders
+    if (["SHIPPED", "DELIVERED", "CANCELLED"].includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        error: "Order cannot be cancelled at this stage",
+      });
     }
 
     const cancelledOrder = await OrderService.cancelOrder(req.params.id);
-    return res.status(200).json({ success: true, data: cancelledOrder });
+
+    return res.status(200).json({
+      success: true,
+      data: cancelledOrder,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// ================= ADMIN FUNCTIONS ==================
+/* ================= ADMIN FUNCTIONS ================= */
 
-// Get all orders (admin)
+/* GET ALL ORDERS */
 const getAllOrdersAdmin = async (req, res) => {
   try {
     const orders = await OrderService.getAllOrdersAdmin();
-    return res.status(200).json({ success: true, data: orders });
+
+    return res.status(200).json({
+      success: true,
+      data: orders,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// Update order status (admin)
+/* UPDATE ORDER STATUS */
 const updateOrderStatusAdmin = async (req, res) => {
   try {
-    const { status } = req.body; // status: "PLACED", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"
+    const { status } = req.body;
     let updatedOrder;
 
     switch (status) {
@@ -94,41 +150,63 @@ const updateOrderStatusAdmin = async (req, res) => {
         updatedOrder = await OrderService.cancelOrder(req.params.id);
         break;
       default:
-        return res.status(400).json({ success: false, error: "Invalid status" });
+        return res.status(400).json({
+          success: false,
+          error: "Invalid status",
+        });
     }
 
-    return res.status(200).json({ success: true, data: updatedOrder });
+    return res.status(200).json({
+      success: true,
+      data: updatedOrder,
+    });
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// Delete order (admin)
+/* DELETE ORDER (ADMIN) */
 const deleteOrder = async (req, res) => {
   try {
-    const order = await OrderService.deleteOrderById(req.params.id);
-    return res.status(200).json({ success: true, data: order });
+    const result = await OrderService.deleteOrderById(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
   } catch (err) {
-    return res.status(404).json({ success: false, error: err.message });
+    return res.status(
+      err.message === "Order not found" ? 404 : 500
+    ).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// Order History
+/* ================= ORDER ITEM HISTORY ================= */
+
 const getOrderItemHistory = async (req, res) => {
   try {
     const history = await OrderService.getHistory(req.user);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       count: history.length,
       data: history,
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 };
 
-// DELETE ORDER ITEM
+/* DELETE ORDER ITEM FROM HISTORY */
 const deleteOrderItem = async (req, res) => {
   try {
     const result = await OrderService.deleteOrderItem(
@@ -136,17 +214,19 @@ const deleteOrderItem = async (req, res) => {
       req.user
     );
 
-    res.status(200).json({ success: true, message: result.message });
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
   } catch (error) {
-    res.status(403).json({ success: false, error: error.message });
+    return res.status(403).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
-
-
 module.exports = {
-  getOrderItemHistory,
-  deleteOrderItem,
   createOrder,
   getUserOrders,
   getOrderById,
@@ -154,4 +234,6 @@ module.exports = {
   getAllOrdersAdmin,
   updateOrderStatusAdmin,
   deleteOrder,
+  getOrderItemHistory,
+  deleteOrderItem,
 };

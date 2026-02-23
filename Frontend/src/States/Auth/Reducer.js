@@ -1,4 +1,3 @@
-
 import {
     REGISTER_USER_REQUEST, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
     LOGIN_USER_REQUEST,    LOGIN_USER_SUCCESS,    LOGIN_USER_FAILED,
@@ -27,8 +26,14 @@ const authReducer = (state = initialState, action) => {
         case REGISTER_USER_REQUEST:
             return { ...state, loading: true, error: null };
 
-        case REGISTER_USER_SUCCESS:
-            return { ...state, loading: false, user: action.payload, error: null };
+       case REGISTER_USER_SUCCESS:
+  return {
+    ...state,
+    loading: false,
+    user: action.payload.user,
+    jwt: action.payload.jwt,
+    error: null,
+  };
 
         case REGISTER_USER_FAILED:
             return { ...state, loading: false, error: action.payload };

@@ -1,12 +1,20 @@
-const Product_Service = require("../services/ProductService");
+const Product_Service = require("../Services/ProductService");
 
 /* CREATE */
 const createProduct = async (req, res) => {
   try {
-    const product = await Product_Service.createProduct(req.body, req.files);
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "Product images required" });
+    }
+
+    const product = await Product_Service.createProduct(
+      req.body,
+      req.files
+    );
+
     res.status(201).json(product);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -18,6 +26,7 @@ const updateProduct = async (req, res) => {
       req.body,
       req.files
     );
+
     res.status(200).json(product);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -34,7 +43,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-/* GET BY CATEGORY ✅ */
+/* GET BY CATEGORY */
 const getProductsByCategory = async (req, res) => {
   try {
     const products = await Product_Service.getProductsByCategory(
@@ -49,8 +58,9 @@ const getProductsByCategory = async (req, res) => {
 /* FIND BY ID */
 const findProductById = async (req, res) => {
   try {
-
-    const product = await Product_Service.findProductById(req.params.id);
+    const product = await Product_Service.findProductById(
+      req.params.id
+    );
     res.status(200).json(product);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -60,7 +70,9 @@ const findProductById = async (req, res) => {
 /* DELETE */
 const deleteProduct = async (req, res) => {
   try {
-    const result = await Product_Service.deleteProduct(req.params.id);
+    const result = await Product_Service.deleteProduct(
+      req.params.id
+    );
     res.status(200).json(result);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -70,7 +82,9 @@ const deleteProduct = async (req, res) => {
 /* RELATED */
 const getRelatedProducts = async (req, res) => {
   try {
-    const products = await Product_Service.getRelatedProducts(req.params.id);
+    const products = await Product_Service.getRelatedProducts(
+      req.params.id
+    );
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -80,7 +94,9 @@ const getRelatedProducts = async (req, res) => {
 /* HOT DEALS */
 const getHotDeals = async (req, res) => {
   try {
-    const products = await Product_Service.getHotDeals(req.query.limit);
+    const products = await Product_Service.getHotDeals(
+      req.query.limit
+    );
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });

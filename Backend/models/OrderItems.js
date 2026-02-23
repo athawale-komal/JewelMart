@@ -7,42 +7,53 @@ const orderItemSchema = new mongoose.Schema(
       ref: "products",
       required: true,
     },
+
     skuCode: {
       type: String,
       required: true,
     },
+
     quantity: {
       type: Number,
       required: true,
       min: 1,
     },
+
     price: {
       type: Number,
       required: true,
     },
+
     discountedPrice: {
       type: Number,
       required: true,
     },
+
     discount: {
       type: Number,
       default: 0,
     },
+
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
       required: true,
     },
+
+    // Snapshot Data (VERY IMPORTANT)
     image: String,
     title: String,
-     isDeleted: {
+    metalType: String,
+    purity: String,
+
+    isDeleted: {
       type: Boolean,
       default: false,
     },
   },
-
   { timestamps: true }
 );
 
 const OrderItem = mongoose.model("OrderItem", orderItemSchema);
-module.exports = OrderItem
+
+module.exports = OrderItem;

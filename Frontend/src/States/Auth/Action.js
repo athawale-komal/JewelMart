@@ -1,3 +1,4 @@
+
 import api from '../../config/apiConfig';
 import {
     REGISTER_USER_REQUEST, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
@@ -12,26 +13,27 @@ import {
 
 
 export const registerUser = (formData) => async (dispatch) => {
-      console.log('FormData received in action:', formData)
     dispatch({ type: REGISTER_USER_REQUEST });
     try {
-        
         const isFormData = formData instanceof FormData;
 
-        const { data } = await api.post('/api/jewelmart/auth/signup', formData, 
-            {
+        const { data } = await api.post('/api/jewelmart/auth/signup', formData, {
             headers: isFormData
                 ? { 'Content-Type': 'multipart/form-data' }
                 : { 'Content-Type': 'application/json' },
         });
-              console.log('FormData being sent:', data)
 
         if (data.jwt) {
             localStorage.setItem('jwt', data.jwt);
         }
-          console.log('FormData being sent:', data) 
 
-        dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user ?? data });
+       dispatch({
+  type: REGISTER_USER_SUCCESS,
+  payload: {
+    user: data.user,
+    jwt: data.jwt
+  }
+});
     } catch (error) {
         const message =
             error.response?.data?.message ||
@@ -70,7 +72,7 @@ export const logoutUser = () => (dispatch) => {
 export const getUserProfile = () => async (dispatch) => {
     dispatch({ type: GET_USER_PROFILE_REQUEST });
     try {
-        const { data } = await api.get('/api/jewelmart/profile');
+        const { data } = await api.get('/api/jewelmart/user/profile');
         dispatch({ type: GET_USER_PROFILE_SUCCESS, payload: data });
     } catch (error) {
         const message =
@@ -82,17 +84,28 @@ export const getUserProfile = () => async (dispatch) => {
 };
 
 
+
 export const updateUserProfile = (updateData) => async (dispatch) => {
     dispatch({ type: UPDATE_USER_PROFILE_REQUEST });
     try {
-        const { data } = await api.put('/api/jewelmart/update', updateData);
+        // Check if updateData is FormData
+        const isFormData = updateData instanceof FormData;
+        
+        const { data } = await api.put('/api/jewelmart/user/update', updateData, {
+            headers: isFormData 
+                ? { 'Content-Type': 'multipart/form-data' }
+                : { 'Content-Type': 'application/json' },
+        });
+        
         dispatch({ type: UPDATE_USER_PROFILE_SUCCESS, payload: data });
+        return { success: true, data };
     } catch (error) {
         const message =
             error.response?.data?.message ||
             error.response?.data?.error ||
             error.message;
         dispatch({ type: UPDATE_USER_PROFILE_FAILED, payload: message });
+        throw error;
     }
 };
 
@@ -100,7 +113,7 @@ export const updateUserProfile = (updateData) => async (dispatch) => {
 export const forgotPassword = (email) => async (dispatch) => {
     dispatch({ type: FORGOT_PASSWORD_REQUEST });
     try {
-        const { data } = await api.post('/api/jewelmart/forgot-password', { email });
+        const { data } = await api.post('/api/jewelmart/auth/forgot-password', { email });
         dispatch({ type: FORGOT_PASSWORD_SUCCESS, payload: data.message ?? 'Reset email sent' });
     } catch (error) {
         const message =
@@ -115,7 +128,7 @@ export const forgotPassword = (email) => async (dispatch) => {
 export const getAllUsers = () => async (dispatch) => {
     dispatch({ type: GET_ALL_USERS_REQUEST });
     try {
-        const { data } = await api.get('/api/jewelmart/users');
+        const { data } = await api.get('/api/jewelmart/user/users');
         dispatch({ type: GET_ALL_USERS_SUCCESS, payload: data });
     } catch (error) {
         const message =
@@ -130,7 +143,7 @@ export const getAllUsers = () => async (dispatch) => {
 export const resetPassword = (token, newPassword, confirmPassword) => async (dispatch) => {
     dispatch({ type: RESET_PASSWORD_REQUEST });
     try {
-        const { data } = await api.post('/api/jewelmart/reset-password', {
+        const { data } = await api.post('/api/jewelmart/auth/reset-password', {
             token,
             newPassword,
             confirmPassword,
@@ -157,7 +170,7 @@ export const restoreAuth = () => async (dispatch) => {
       return;
     }
     
-    const response = await api.get('/api/v1/user/profile', {
+    const response = await api.get('/api/jewelmart/user/profile', {
       headers: { Authorization: `Bearer ${jwt}` },
     });
     
@@ -171,7 +184,6 @@ export const restoreAuth = () => async (dispatch) => {
     
     dispatch({ type: LOGIN_USER_SUCCESS, payload: completeUser });
     
-  // eslint-disable-next-line no-unused-vars
   } catch (error) {
     localStorage.removeItem("jwt");
     dispatch({ type: LOGOUT_USER });

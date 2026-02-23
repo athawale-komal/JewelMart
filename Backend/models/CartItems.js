@@ -1,4 +1,4 @@
-const mongoose  = require ("mongoose");
+const mongoose = require("mongoose");
 
 const cartItemSchema = new mongoose.Schema(
   {
@@ -20,11 +20,23 @@ const cartItemSchema = new mongoose.Schema(
       required: true,
     },
 
-    
+    productSku: {
+      type: String,
+    },
+
+    // Jewelry Info (NEW)
+    metalType: {
+      type: String,
+    },
+
+    purity: {
+      type: String,
+    },
 
     quantity: {
       type: Number,
       default: 1,
+      min: 1,
     },
 
     price: {
@@ -50,4 +62,5 @@ const cartItemSchema = new mongoose.Schema(
 );
 
 const CartItem = mongoose.model("cartItems", cartItemSchema);
-module.exports = CartItem
+
+module.exports = CartItem;

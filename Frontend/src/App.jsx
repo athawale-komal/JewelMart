@@ -23,9 +23,8 @@ import Layout from './Admin/Layout';
 import Dashboard from './Admin/Dashboard/Dashboard';
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { useDispatch, useSelector } from 'react-redux';
-import { restoreAuth } from './states/Auth/Action';
-// import ProductDetail from './Pages/ProductDetail';
+import { useDispatch, useSelector} from 'react-redux';
+import { restoreAuth } from './States/Auth/Action';
 
 
 const App = () => {
@@ -39,9 +38,9 @@ const App = () => {
   useEffect(() => {
     if (auth.jwt && !auth.user) {
       dispatch(restoreAuth());
+      
     }
-  }, [dispatch, auth.jwt, auth.user]);
-
+  }, [dispatch]);
 
   return (
     <>

@@ -25,14 +25,14 @@ const updateCartTotals = async (cartId) => {
   let totalPrice = 0;
   let totalPayable = 0;
   let totalItem = 0;
-  let discount = 0;
 
   items.forEach((item) => {
     totalPrice += item.price;
     totalPayable += item.discountedPrice;
     totalItem += item.quantity;
-    discount += item.discount;
   });
+
+  const discount = totalPrice - totalPayable;
 
   await Cart.findByIdAndUpdate(cartId, {
     totalPrice,
@@ -41,7 +41,6 @@ const updateCartTotals = async (cartId) => {
     discount,
   });
 };
-
 /* FIND USER CART */
 const findUserCart = async (userId) => {
   const cart = await createCart(userId);
@@ -49,7 +48,7 @@ const findUserCart = async (userId) => {
   const items = await CartItem.find({ cart: cart._id })
     .populate(
       "product",
-      "title brand image price discountedPrice productSku"
+      "title brand images price discountedPrice productSku metalType purity"
     );
 
   return { cart, items };
@@ -70,11 +69,14 @@ const addCartItem = async (userId, productId) => {
 
   if (existingItem) {
     existingItem.quantity += 1;
+
     existingItem.price = product.price * existingItem.quantity;
     existingItem.discountedPrice =
       product.discountedPrice * existingItem.quantity;
+
     existingItem.discount =
-      (product.price - product.discountedPrice) * existingItem.quantity;
+      (product.price - product.discountedPrice) *
+      existingItem.quantity;
 
     await existingItem.save();
   } else {
@@ -87,7 +89,12 @@ const addCartItem = async (userId, productId) => {
       price: product.price,
       discountedPrice: product.discountedPrice,
       discount: product.price - product.discountedPrice,
-      image: product.image,
+
+      // ✅ FIX HERE
+      image: product.images?.[0] || "",
+
+      metalType: product.metalType,
+      purity: product.purity,
     });
   }
 

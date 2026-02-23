@@ -1,6 +1,6 @@
 const Address = require("../models/Address.js");
 const Order = require("../models/Order.js");
-const CartService = require("../services/CartService.js");
+const CartService = require("../Services/CartService.js");
 const OrderItem = require("../models/OrderItems.js");
 const { sendEmail } = require("../config/email.js");
 const orderEmailTemplate = require('../utils/emailTemplate.js');
@@ -31,17 +31,13 @@ const createOrder = async (user, shippingAddress) => {
 
   let address;
 
-  // Use existing address
   if (shippingAddress._id) {
     address = await Address.findById(shippingAddress._id);
     if (!address) throw new Error("Address not found");
-  } 
-  // Create new address
-  else {
+  } else {
     address = await Address.create({
       ...shippingAddress,
       user: user._id,
-    
     });
   }
 
@@ -53,17 +49,14 @@ const createOrder = async (user, shippingAddress) => {
 
   const orderItems = [];
 
-
   for (const item of items) {
-
     const orderItem = await OrderItem.create({
       product: item.product._id,
-     skuCode: item.product.productSku,
+      skuCode: item.productSku || item.product.productSku,
       quantity: item.quantity,
       price: item.price,
-      stock:item.stock,
       discountedPrice: item.discountedPrice,
-      discount: item.price - item.discountedPrice,
+      discount: calculateDiscountPercent(item.price, item.discountedPrice),
       userId: user._id,
       image: item.image || item.product.image,
       title: item.product.title,
@@ -82,9 +75,11 @@ const createOrder = async (user, shippingAddress) => {
     totalItem: cart.totalItem,
   });
 
+  // Clear cart after order
+  await CartService.clearCart(user._id);
+
   return order;
 };
-
 
 
 //  UPDATE ORDER STATUS
