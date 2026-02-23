@@ -7,31 +7,31 @@ app.use(express.json());
 app.use(cors())
 
 const AuthRoutes = require('./Routes/AuthRoutes');
-app.use('/api/jwellmart', AuthRoutes);
+app.use('/api/jewelmart', AuthRoutes);
 
  const ProductRoutes = require('./Routes/ProductRoutes')
- app.use('/api/jwellmart', ProductRoutes);
+ app.use('/api/jewelmart', ProductRoutes);
 
 const Cart_Route = require('./Routes/CartRoutes')
-app.use('/api/jwellmart', Cart_Route);
+app.use('/api/jewelmart', Cart_Route);
 
 
 const OrderRoute = require('./Routes/OrderRoutes.js')
-app.use('/api/jwellmart', OrderRoute);
+app.use('/api/jewelmart', OrderRoute);
 
 const RatingRoute = require('./Routes/RatingRoutes.js')
-app.use('/api/jwellmart', RatingRoute);
+app.use('/api/jewelmart', RatingRoute);
 
 const WishlistRoute = require('./Routes/WishlistRoutes.js')
-app.use('/api/jwellmart', WishlistRoute);
+app.use('/api/jewelmart', WishlistRoute);
 
 
 const ReviewRoute = require('./Routes/ReviewRoutes.js')
-app.use('/api/jwellmart', ReviewRoute);
+app.use('/api/jewelmart', ReviewRoute);
 
 
 const PaymentRoute = require('./Routes/PaymentRoutes.js')
-app.use('/api/jwellmart', PaymentRoute);
+app.use('/api/jewelmart', PaymentRoute);
 
 
 module.exports = app;   

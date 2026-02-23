@@ -18,7 +18,7 @@ import DiamondEducation from './Pages/DiamondEducation';
 import PrivacyPolicy from './Pages/PrivacyPolicy ';
 import TermsOfService from './Pages/TermsOfService';
 import Wishlist from './Pages/Wishlist';
-import ProductDetail from './Pages/ProductDetail';
+// import ProductDetail from './Pages/ProductDetail';
 
 
 const App = () => {
@@ -27,13 +27,13 @@ const App = () => {
   const hideLayout = location.pathname === '/login';
 
   return (
-    <BrowserRouter>
+    <>
        {!hideLayout && <Header cartCount={"0"} />}
 
       <Routes>
         <Route path='/' element={<Home  />} />
         <Route path='/products' element={<OurProduct  />} />
-        <Route path="/product/:id" element={<ProductDetail  />} />
+        {/* <Route path="/product/:id" element={<ProductDetail  />} /> */}
         <Route path='/ai-stylist' element={<AiStylist />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
@@ -51,7 +51,7 @@ const App = () => {
       </Routes>
 
       {!hideLayout && <Footer />}
-    </BrowserRouter>
+    </>
   );
 };
 
