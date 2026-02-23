@@ -12,17 +12,19 @@ import {
 
 
 export const registerUser = (formData) => async (dispatch) => {
+      console.log('FormData received in action:', formData)
     dispatch({ type: REGISTER_USER_REQUEST });
     try {
+        
         const isFormData = formData instanceof FormData;
 
         const { data } = await api.post('/api/jewelmart/auth/signup', formData, 
-          
             {
             headers: isFormData
                 ? { 'Content-Type': 'multipart/form-data' }
                 : { 'Content-Type': 'application/json' },
         });
+              console.log('FormData being sent:', data)
 
         if (data.jwt) {
             localStorage.setItem('jwt', data.jwt);

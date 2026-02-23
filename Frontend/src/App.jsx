@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './Components/Header';
 import Footer from './Components/Footer';
@@ -18,13 +18,30 @@ import DiamondEducation from './Pages/DiamondEducation';
 import PrivacyPolicy from './Pages/PrivacyPolicy ';
 import TermsOfService from './Pages/TermsOfService';
 import Wishlist from './Pages/Wishlist';
+import ProtectedRoutes from './Components/ProtectedRoutes';
+import Layout from './Admin/Layout';
+import Dashboard from './Admin/Dashboard/Dashboard';
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { restoreAuth } from './states/Auth/Action';
 // import ProductDetail from './Pages/ProductDetail';
 
 
 const App = () => {
 
+  const dispatch = useDispatch();
   const location = useLocation();
-  const hideLayout = location.pathname === '/login';
+  const hideLayout = location.pathname === '/auth' || location.pathname.startsWith('/admin');
+
+  const auth = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (auth.jwt && !auth.user) {
+      dispatch(restoreAuth());
+    }
+  }, [dispatch, auth.jwt, auth.user]);
+
 
   return (
     <>
@@ -46,10 +63,18 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path='/category/:category' element={<CategoryPage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/auth" element={<Login />} />
+        <Route path="/admin/*" element={
+            <ProtectedRoutes requiredRole='ADMIN'>
+              <Layout />
+            </ProtectedRoutes>
+        } >
+          <Route path="dashboard" element={<Dashboard />} />
+
+        </Route>
         <Route path='*' element={<NotFound />} />
       </Routes>
-
+<ToastContainer/>
       {!hideLayout && <Footer />}
     </>
   );
