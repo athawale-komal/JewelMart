@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Users, Menu, X, LayoutDashboard, LogOut, ClipboardList,Gem, Leaf, Package, UserRound, ChevronRight, Sparkles } from 'lucide-react';
+import { Users, Menu, X, LayoutDashboard, LogOut, ClipboardList, Gem, Leaf, Package, UserRound, ChevronRight, Sparkles } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getUserProfile, logoutUser } from '../states/Auth/Action';
+import { getUserProfile, logoutUser } from '../States/Auth/Action';
 import { toast } from 'react-toastify';
 
 
@@ -92,50 +92,47 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside className={`
           fixed lg:relative top-0 left-0 h-screen 
-          bg-linear-to-br from-slate-950 via-slate-900 to-slate-950
-          z-40 flex flex-col shadow-2xl border-r border-white/5
+          bg-white z-40 flex flex-col shadow-xl border-r border-slate-200/60
           transition-all duration-500 ease-out
           ${isOpen ? 'w-74' : 'w-24'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-violet-500/5 opacity-40 pointer-events-none" />
-        <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-emerald-500/30 to-transparent" />
+        {/* Subtle decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-emerald-500/10 to-transparent" />
 
         {/* Header */}
-        <div className={`relative flex items-center px-6 py-4 border-b border-white/5 shrink-0 backdrop-blur-sm transition-all duration-500 ${isOpen ? "justify-between px-4" : "justify-center"
-            }`} >
+        <div className={`relative flex items-center px-6 py-5 border-b border-slate-100 shrink-0 transition-all duration-500 ${isOpen ? "justify-between px-4" : "justify-center"
+          }`} >
 
           <div className={`flex items-center gap-3.5 overflow-hidden transition-all duration-500 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-            {/* Avatar with glow */}
+            {/* Avatar/Logo */}
             <div className="relative group">
-              <div className="relative w-11 h-11 bg-linear-to-br from-emerald-500 to-emerald-600  text-white rounded-2xl flex items-center justify-center overflow-hidden">
-               <LayoutDashboard/>
+              <div className="relative w-11 h-11 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center overflow-hidden border border-emerald-100 shadow-sm">
+                <LayoutDashboard size={22} />
               </div>
             </div>
 
             {/* User info */}
             <div className="flex-1 min-w-0">
-              <p className='text-xl font-extrabold text-white'>Dashboard</p>
-              <p className='flex items-center gap-2 text-slate-600'><div className="w-2 h-2 ring-2 ring-emerald-500/20 bg-emerald-500 rounded-full"></div>Admin</p>
+              <p className='text-xl font-bold text-slate-800 tracking-tight'>JewelMart</p>
+              <p className='flex items-center gap-2 text-[11px] text-slate-500 font-bold uppercase tracking-widest'><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>Admin Panel</p>
             </div>
           </div>
 
           {/* Toggle button */}
           <button onClick={() => setIsOpen(!isOpen)}
-             className={`flex items-center justify-center w-10 h-10 shrink-0 rounded-xl transition-all duration-300 ${
-              isOpen
-               ? 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
-              : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10'
+            className={`flex items-center justify-center w-9 h-9 shrink-0 rounded-xl transition-all duration-300 ${isOpen
+              ? 'bg-slate-50 hover:bg-slate-100 text-slate-400 border border-slate-200'
+              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 shadow-sm'
               }`}
-              aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}>
-           <Menu size={20} className={`transition-transform duration-500 ${!isOpen ? 'rotate-180' : ''}`}/>
+            aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}>
+            <Menu size={18} className={`transition-transform duration-500 ${!isOpen ? 'rotate-180' : ''}`} />
           </button>
 
         </div>
 
         {/* Navigation */}
-        <nav className="relative flex-1 py-6 px-3 space-y-1.5  scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+        <nav className="relative flex-1 py-6 px-3 space-y-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-200">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = isActiveRoute(item.path);
@@ -151,107 +148,79 @@ export default function Sidebar() {
                 className={`
                   group relative flex items-center gap-3 px-3.5 py-3 rounded-2xl
                   transition-all duration-300 cursor-pointer overflow-visible
-              
+                  ${isActive ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}
                 `}
               >
                 {/* Active indicator */}
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-emerald-400 to-emerald-600 rounded-r-full shadow-lg shadow-emerald-500/50" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-emerald-500 rounded-r-full shadow-[2px_0_10px_rgba(16,185,129,0.3)]" />
                 )}
 
-                {/* Icon with gradient background */}
+                {/* Icon */}
                 <div className={`
                   relative shrink-0 w-10 h-10 rounded-xl flex items-center justify-center
                   transition-all duration-300
-                  ${isActive ? 'bg-linear-to-br ' + item.color + ' shadow-lg' : 'bg-white/5'}
-                  ${isHovered && !isActive ? 'scale-110 bg-white/10' : ''}
+                  ${isActive ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-50 text-slate-400 group-hover:text-slate-600'}
+                  ${isHovered && !isActive ? 'scale-110 bg-slate-100' : ''}
                 `}>
-                  <Icon
-                    size={20}
-                    className={`transition-all duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
-                      }`}
-                  />
+                  <Icon size={20} />
                 </div>
 
                 {/* Label */}
                 <span
                   className={`
                     font-semibold text-[15px] whitespace-nowrap transition-all duration-500
-                    ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}
+                    ${isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-800'}
                     ${isOpen ? 'opacity-100 w-auto translate-x-0' : 'opacity-0 w-0 -translate-x-4 overflow-hidden'}
                   `}
                 >
                   {item.label}
                 </span>
 
-                {/* Arrow indicator for active */}
-                {isActive && isOpen && (
-                  <ChevronRight
-                    size={16}
-                    className="ml-auto text-emerald-400 animate-pulse"
-                  />
-                )}
-
                 {/* Tooltip (collapsed mode) */}
-                <div
-                  className={`
-                    absolute left-full top-1/2 -translate-y-1/2 ml-4 px-4 py-2.5
-                    bg-slate-800 border border-white/10 text-white text-sm font-semibold rounded-xl shadow-2xl
-                    whitespace-nowrap pointer-events-none z-50
-                    transition-all duration-300 backdrop-blur-xl
-                    ${!isOpen
-                      ? 'opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 visible'
-                      : 'opacity-0 invisible'
-                    }
-                  `}
-                >
-                  {item.label}
-                  <div className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 bg-slate-800 border-l border-b border-white/10 rotate-45" />
-                </div>
+                {!isOpen && (
+                  <div
+                    className={`
+                      absolute left-full top-1/2 -translate-y-1/2 ml-4 px-4 py-2.5
+                      bg-slate-900 text-white text-xs font-semibold rounded-xl shadow-2xl
+                      whitespace-nowrap pointer-events-none z-50
+                      transition-all duration-300
+                      ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}
+                    `}
+                  >
+                    {item.label}
+                    <div className="absolute top-1/2 -left-1 w-2 h-2 bg-slate-900 rotate-45 -translate-y-1/2" />
+                  </div>
+                )}
               </Link>
             );
           })}
         </nav>
 
         {/* Logout footer */}
-       <div className="relative p-4 border-t border-white/5 shrink-0 backdrop-blur-sm">
-        <div className={`flex items-center transition-all duration-500 ${isOpen ? "gap-3" : "justify-center"}`}>
-    {/* Animated Logout Button */}
-    <button
-      onClick={handleLogout}
-      className="group relative flex items-center overflow-hidden rounded-2xl transition-all duration-500"
-    >
-      {/* Animated Gradient Border */}
-      <div className="absolute inset-0 bg-linear-to-r from-red-500 via-rose-500 to-pink-500 opacity-70 blur-md group-hover:opacity-100 transition duration-500" />
+        <div className="relative p-4 border-t border-slate-100 shrink-0">
+          <button
+            onClick={handleLogout}
+            className={`
+              w-full flex items-center rounded-2xl transition-all duration-300 group
+              ${isOpen ? 'px-4 py-3 gap-3 bg-slate-50 hover:bg-rose-50' : 'h-12 justify-center bg-slate-50 hover:bg-rose-50'}
+            `}
+          >
+            <LogOut size={18} className="text-slate-400 group-hover:text-rose-500 transition-colors" />
+            <span className={`
+              font-bold text-sm text-slate-600 group-hover:text-rose-600 transition-all duration-500 whitespace-nowrap
+              ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'}
+            `}>
+              Sign Out
+            </span>
 
-      {/* Inner Content */}
-      <div className={`relative flex items-center bg-slate-900 rounded-2xl transition-all duration-500 ${
-          isOpen ? "px-4 py-2.5 gap-3" : "w-11 h-11 justify-center" }`}>
-        <LogOut size={18} className="text-rose-600 group-hover:text-white transition-colors duration-300" />
-
-        {/* Text (slide animation) */}
-        <span className={`font-semibold text-sm text-white transition-all duration-500 whitespace-nowrap ${
-            isOpen
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-4 w-0"
-          }`}>
-          Logout
-        </span>
-      </div>
-
-      {/* Tooltip (Collapsed mode only) */}
-      {!isOpen && (
-        <div className="absolute left-14 bg-slate-800 text-white text-xs px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition duration-300 whitespace-nowrap">
-          Logout
+            {!isOpen && (
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none shadow-xl">
+                Sign Out
+              </div>
+            )}
+          </button>
         </div>
-      )}
-    </button>
-  </div>
-</div>
-
-
-        {/* Bottom gradient accent */}
-        <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-emerald-500/30 to-transparent" />
       </aside>
 
 

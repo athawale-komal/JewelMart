@@ -178,13 +178,24 @@ const updateProfile = async (req, res) => {
 
 
 
-module.exports = {
+// DELETE USER (ADMIN)
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await UserService.deleteUser(userId);
+    return res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
+module.exports = {
   register,
   login,
   forgotPassword,
   resetPassword,
   getAllUsers,
   getUserProfile,
-  updateProfile
+  updateProfile,
+  deleteUser
 };

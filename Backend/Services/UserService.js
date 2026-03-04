@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const PASSWORD_REGEX =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
-const generateResetToken = () =>crypto.randomBytes(20).toString('hex');
+const generateResetToken = () => crypto.randomBytes(20).toString('hex');
 
 /* -------------------- CREATE USER -------------------- */
 
@@ -105,7 +105,7 @@ const setResetPasswordToken = async (email) => {
     const resetToken = generateResetToken();
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; 
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
     await user.save();
 
     return resetToken;
@@ -143,8 +143,20 @@ const resetPassword = async (token, newPassword, confirmPassword) => {
 };
 
 
+const deleteUser = async (userId) => {
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) throw new Error('User not found');
+    return user;
+};
 
-
-
-
-module.exports = { setResetPasswordToken, resetPassword, createUser, getAllUsers, findUserByEmail, findUserById, getUserProfile, updateUserProfile };
+module.exports = {
+    setResetPasswordToken,
+    resetPassword,
+    createUser,
+    getAllUsers,
+    findUserByEmail,
+    findUserById,
+    getUserProfile,
+    updateUserProfile,
+    deleteUser
+};

@@ -1,6 +1,10 @@
-import React, { useState } from "react";
-import { products } from "../Data/Product";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { findProducts } from "../States/Products/Action";
+import { addToWishlist } from "../States/Wishlist/Action";
+import { addItemToCart } from "../States/Cart/Action";
 import { useNavigate } from "react-router-dom";
+import { Heart, Loader2, ShoppingCart } from "lucide-react";
 
 const OurProduct = () => {
   const [search, setSearch] = useState("");
@@ -9,10 +13,16 @@ const OurProduct = () => {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 200000 });
   const [selectedPurities, setSelectedPurities] = useState([]);
   const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { products, loading } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    dispatch(findProducts());
+  }, [dispatch]);
 
   // Get unique categories and purities
-  const categories = ["All", ...new Set(products.map(item => item.category))];
+  const categories = ["All", "Ring", "Necklace", "Earrings", "Bangle", "Bracelet", "Mangalsutra", "Anklet", "Nose Pin", "Pendant", "Chain", "Toe Ring", "Kada"];
   const purities = ["22K", "18K", "925", "Natural"];
 
   // Toggle purity filter
@@ -25,12 +35,9 @@ const OurProduct = () => {
   };
 
   // Filter + Search + Sort logic
-  const filteredProducts = products
+  const filteredProducts = (products || [])
     .filter(item =>
-      item.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter(item =>
-      category === "All" ? true : item.category === category
+      (item.title || item.name || "").toLowerCase().includes(search.toLowerCase())
     )
     .filter(item =>
       item.price >= priceRange.min && item.price <= priceRange.max
@@ -56,6 +63,14 @@ const OurProduct = () => {
   // Navigate to product detail page
   const handleQuickView = (productId) => {
     navigate(`/product/${productId}`);
+  };
+
+  const handleWishlist = (productId) => {
+    dispatch(addToWishlist(productId));
+  };
+
+  const handleAddToCart = (productId) => {
+    dispatch(addItemToCart({ productId, quantity: 1 }));
   };
 
   return (
@@ -90,7 +105,7 @@ const OurProduct = () => {
       {/* Main Content */}
       <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          
+
           {/* LEFT FILTER SIDEBAR */}
           <aside className="lg:w-80 shrink-0">
             <div className="bg-white rounded-2xl shadow-lg border border-amber-100 p-6 sticky top-4">
@@ -121,7 +136,7 @@ const OurProduct = () => {
                     onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) })}
                     className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-400 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
-                  
+
                   <div className="flex items-center justify-between text-sm text-slate-600 mt-4">
                     <span>Max: ₹{priceRange.max.toLocaleString()}</span>
                   </div>
@@ -190,11 +205,11 @@ const OurProduct = () => {
 
           {/* RIGHT CONTENT AREA */}
           <main className="flex-1">
-            
+
             {/* Top Bar - Search & Sort */}
             <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-4 md:p-6 mb-8">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                
+
                 {/* Results Count */}
                 <div className="text-slate-700 font-semibold text-lg">
                   <span className="text-2xl text-amber-600">{filteredProducts.length}</span> products found
@@ -227,26 +242,24 @@ const OurProduct = () => {
                   <div className="flex gap-2 bg-slate-100 p-1 rounded-lg">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded transition-all ${
-                        viewMode === "grid" 
-                          ? "bg-amber-500 text-white shadow-md" 
-                          : "text-slate-600 hover:text-amber-600"
-                      }`}
+                      className={`p-2 rounded transition-all ${viewMode === "grid"
+                        ? "bg-amber-500 text-white shadow-md"
+                        : "text-slate-600 hover:text-amber-600"
+                        }`}
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+                        <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" />
                       </svg>
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded transition-all ${
-                        viewMode === "list" 
-                          ? "bg-amber-500 text-white shadow-md" 
-                          : "text-slate-600 hover:text-amber-600"
-                      }`}
+                      className={`p-2 rounded transition-all ${viewMode === "list"
+                        ? "bg-amber-500 text-white shadow-md"
+                        : "text-slate-600 hover:text-amber-600"
+                        }`}
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                        <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" />
                       </svg>
                     </button>
                   </div>
@@ -255,44 +268,57 @@ const OurProduct = () => {
             </div>
 
             {/* Products Grid */}
-            <div className={`grid gap-6 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
-                : "grid-cols-1"
-            }`}>
-              {filteredProducts.map((item) => (
+            <div className={`grid gap-6 ${viewMode === "grid"
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "grid-cols-1"
+              }`}>
+              {loading ? (
+                <div className="flex justify-center items-center h-64">
+                  <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+                </div>
+              ) : filteredProducts.map((item) => (
                 <div
-                  key={item.id}
-                  className={`group bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-                    viewMode === "list" ? "flex flex-row" : "flex flex-col"
-                  }`}
+                  key={item._id || item.id}
+                  className={`group bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${viewMode === "list" ? "flex flex-row" : "flex flex-col"
+                    }`}
                 >
                   {/* Product Image */}
-                  <div className={`relative overflow-hidden ${
-                    viewMode === "list" ? "w-64 shrink-0" : "w-full"
-                  }`}>
+                  <div className={`relative overflow-hidden ${viewMode === "list" ? "w-64 shrink-0" : "w-full"
+                    }`}>
                     <img
-                      src={item.image}
-                      alt={item.name}
-                      className={`object-cover transition-transform duration-500 group-hover:scale-110 ${
-                        viewMode === "list" ? "h-full w-full" : "h-72 w-full"
-                      }`}
+                      src={item.images?.[0] || item.image}
+                      alt={item.title || item.name}
+                      className={`object-cover transition-transform duration-500 group-hover:scale-110 ${viewMode === "list" ? "h-full w-full" : "h-72 w-full"
+                        }`}
                     />
-                    
-                    {/* Quick View Button - Appears on Hover */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
                       <button
-                        onClick={() => handleQuickView(item.id)}
-                        className="bg-white text-slate-800 font-bold py-3 px-6 rounded-xl shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-amber-500 hover:text-white flex items-center gap-2"
+                        onClick={() => navigate(`/product/${item._id || item.id}`)}
+                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300 shadow-xl"
+                        title="Quick View"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
-                        Quick View
+                      </button>
+                      <button
+                        onClick={() => handleWishlist(item._id || item.id)}
+                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-xl"
+                        title="Add to Wishlist"
+                      >
+                        <Heart className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleAddToCart(item._id || item.id)}
+                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-xl"
+                        title="Add to Cart"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
                       </button>
                     </div>
-                    
+
                     {/* Badges */}
                     <div className="absolute top-4 right-4 flex flex-col gap-2">
                       {item.purity && (
@@ -327,7 +353,7 @@ const OurProduct = () => {
 
                     {/* Product Name */}
                     <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">
-                      {item.name}
+                      {item.title || item.name}
                     </h3>
 
                     {/* Description */}
@@ -356,11 +382,11 @@ const OurProduct = () => {
                     </div>
 
                     {/* Add to Cart Button */}
-                    <button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group">
+                    <button
+                      onClick={() => handleAddToCart(item._id || item.id)}
+                      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group">
                       <span>Add to Cart</span>
-                      <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
+                      <ShoppingCart className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>

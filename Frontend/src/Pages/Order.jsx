@@ -1,101 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Clock, CheckCircle, XCircle, Truck, MapPin, Calendar, IndianRupee } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, Truck, MapPin, Calendar, IndianRupee, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getOrderHistory } from '../States/Order/Action';
 
 const Orders = () => {
-  const [user, setUser] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { orders, loading } = useSelector((state) => state.order);
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/login');
+    if (!user) {
+      navigate('/auth');
       return;
     }
-
-    setUser(JSON.parse(userData));
-
-    // Load orders from localStorage (in real app, fetch from API)
-    const storedOrders = localStorage.getItem('orders');
-    if (storedOrders) {
-      setOrders(JSON.parse(storedOrders));
-    } else {
-      // Sample orders for demonstration
-      const sampleOrders = [
-        {
-          id: 'ORD-2026-001',
-          date: '2026-01-28',
-          status: 'delivered',
-          items: [
-            {
-              id: 1,
-              name: 'Classic Gold Ring',
-              price: 12000,
-              quantity: 1,
-              image: 'https://th.bing.com/th/id/OIP.yU4pGIntepYuRkxRlt_8ugHaE0?w=274&h=180&c=7&r=0&o=7&cb=defcachec2&dpr=1.3&pid=1.7&rm=3'
-            }
-          ],
-          total: 12000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK1234567890'
-        },
-        {
-          id: 'ORD-2026-002',
-          date: '2026-01-25',
-          status: 'shipped',
-          items: [
-            {
-              id: 2,
-              name: 'Diamond Ring',
-              price: 45000,
-              quantity: 1,
-              image: 'https://i.etsystatic.com/17551371/r/il/aeec05/2261981397/il_fullxfull.2261981397_6mqh.jpg'
-            },
-            {
-              id: 7,
-              name: 'Gold Earrings',
-              price: 15000,
-              quantity: 1,
-              image: 'https://tse3.mm.bing.net/th/id/OIP.q_AjccogHQBfzK19lwU1AgHaHa?cb=defcachec2&pid=ImgDet&w=184&h=184&c=7&dpr=1.3&o=7&rm=3'
-            }
-          ],
-          total: 60000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK0987654321'
-        },
-        {
-          id: 'ORD-2026-003',
-          date: '2026-01-20',
-          status: 'processing',
-          items: [
-            {
-              id: 4,
-              name: 'Traditional Gold Necklace',
-              price: 85000,
-              quantity: 1,
-              image: 'https://th.bing.com/th/id/OIP.CXdhx-UmV77tGOnFIuXY2wHaHa?w=197&h=197&c=7&r=0&o=7&cb=defcachec2&dpr=1.3&pid=1.7&rm=3'
-            }
-          ],
-          total: 85000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK1122334455'
-        }
-      ];
-      setOrders(sampleOrders);
-      localStorage.setItem('orders', JSON.stringify(sampleOrders));
-    }
-  }, [navigate]);
+    dispatch(getOrderHistory());
+  }, [dispatch, user, navigate]);
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'delivered':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'shipped':
         return <Truck className="w-5 h-5 text-blue-600" />;
-      case 'processing':
+      case 'placed':
+      case 'confirmed':
+      case 'pending':
         return <Clock className="w-5 h-5 text-amber-600" />;
       case 'cancelled':
         return <XCircle className="w-5 h-5 text-red-600" />;
@@ -105,12 +36,14 @@ const Orders = () => {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case 'delivered':
         return 'bg-green-50 text-green-700 border-green-200';
       case 'shipped':
         return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'processing':
+      case 'placed':
+      case 'confirmed':
+      case 'pending':
         return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'cancelled':
         return 'bg-red-50 text-red-700 border-red-200';
@@ -150,7 +83,11 @@ const Orders = () => {
         </div>
 
         {/* Orders List */}
-        {orders.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+          </div>
+        ) : !orders || orders.length === 0 ? (
           <div className="text-center py-20">
             <Package className="w-20 h-20 text-gray-300 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No Orders Yet</h2>
@@ -166,9 +103,9 @@ const Orders = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => (
+            {(orders || []).map((order) => (
               <div
-                key={order.id}
+                key={order._id}
                 className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-stone-100 overflow-hidden"
               >
                 {/* Order Header */}
@@ -176,17 +113,17 @@ const Orders = () => {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
-                        {getStatusIcon(order.status)}
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        {getStatusIcon(order.orderStatus)}
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.orderStatus)}`}>
+                          {order.orderStatus}
                         </span>
                       </div>
                       <div className="h-6 w-px bg-stone-300"></div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">Order #{order.id}</p>
+                        <p className="text-sm font-semibold text-gray-900">Order #{order._id?.slice(-8).toUpperCase()}</p>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {formatDate(order.date)}
+                          {formatDate(order.orderDate || order.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -195,7 +132,7 @@ const Orders = () => {
                       <p className="text-sm text-gray-600">Total Amount</p>
                       <p className="text-2xl font-bold text-amber-600 flex items-center justify-end">
                         <IndianRupee className="w-5 h-5" />
-                        {order.total.toLocaleString('en-IN')}
+                        {order.totalDiscountPrice?.toLocaleString('en-IN')}
                       </p>
                     </div>
                   </div>
@@ -204,21 +141,21 @@ const Orders = () => {
                 {/* Order Items */}
                 <div className="p-6">
                   <div className="space-y-4">
-                    {order.items.map((item, index) => (
+                    {(order.orderItems || []).map((item, index) => (
                       <div key={index} className="flex gap-4 items-center">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.image || item.product?.images?.[0] || item.product?.image}
+                          alt={item.title || item.product?.title}
                           className="w-20 h-20 object-cover rounded-lg border border-stone-200"
                         />
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                          <h3 className="font-semibold text-gray-900">{item.title || item.product?.title}</h3>
                           <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-gray-900 flex items-center">
                             <IndianRupee className="w-4 h-4" />
-                            {item.price.toLocaleString('en-IN')}
+                            {item.discountedPrice?.toLocaleString('en-IN')}
                           </p>
                         </div>
                       </div>
@@ -232,7 +169,9 @@ const Orders = () => {
                         <MapPin className="w-4 h-4 text-amber-600 mt-1 flex-shrink-0" />
                         <div>
                           <p className="text-sm font-semibold text-gray-900 mb-1">Shipping Address</p>
-                          <p className="text-sm text-gray-600">{order.shippingAddress}</p>
+                          <p className="text-sm text-gray-600">
+                            {order.shippingAddress?.landmark}, {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -253,19 +192,18 @@ const Orders = () => {
                   {/* Actions */}
                   <div className="mt-6 pt-6 border-t border-stone-100 flex flex-wrap gap-3">
                     <button
-                      onClick={() => setSelectedOrder(order)}
                       className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg font-semibold hover:bg-amber-100 transition-all"
                     >
                       View Details
                     </button>
 
-                    {order.status === 'shipped' && (
+                    {order.orderStatus === 'SHIPPED' && (
                       <button className="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-semibold hover:bg-blue-100 transition-all">
                         Track Order
                       </button>
                     )}
 
-                    {order.status === 'delivered' && (
+                    {order.orderStatus === 'DELIVERED' && (
                       <button className="px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg font-semibold hover:bg-green-100 transition-all">
                         Review Product
                       </button>
