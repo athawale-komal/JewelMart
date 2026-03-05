@@ -184,8 +184,8 @@ export default function Checkout() {
                                                 key={addr._id}
                                                 onClick={() => setSelectedAddress(addr)}
                                                 className={`p-6 border transition-all cursor-pointer relative group rounded-sm ${selectedAddress?._id === addr._id
-                                                        ? "border-[#d4af37] bg-[rgba(212,175,55,0.05)]"
-                                                        : "border-[rgba(212,175,55,0.1)] bg-[#12100d] hover:border-[rgba(212,175,55,0.3)]"
+                                                    ? "border-[#d4af37] bg-[rgba(212,175,55,0.05)]"
+                                                    : "border-[rgba(212,175,55,0.1)] bg-[#12100d] hover:border-[rgba(212,175,55,0.3)]"
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start mb-4">
@@ -246,7 +246,7 @@ export default function Checkout() {
                                 {cartItems?.map((item) => (
                                     <div key={item._id} className="p-6 border-b border-[rgba(212,175,55,0.05)] last:border-0 flex gap-6 items-center">
                                         <div className="w-20 aspect-[4/5] overflow-hidden border border-[rgba(212,175,55,0.1)]">
-                                            <img src={item.product?.image} className="w-full h-full object-cover grayscale-[0.3]" alt="" />
+                                            <img src={item.product?.images[0]} className="w-full h-full object-cover grayscale-[0.3]" alt="" />
                                         </div>
                                         <div className="flex-1">
                                             <h4 className="text-sm tracking-[0.1em] uppercase font-light text-[#e8dfc8]">{item.product?.title}</h4>

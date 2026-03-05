@@ -1,9 +1,9 @@
-const  WishlistService = require ("../Services/WishlistService.js");
+const WishlistService = require("../Services/WishlistService.js");
 
- const addToWishlist = async (req, res) => {
+const addToWishlist = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { productId, skuCode } = req.body;
+    const { productId, skuCode } = req.body || {};
 
     const wishlist = await WishlistService.addToWishlist(userId, productId, skuCode);
     res.status(200).json({ success: true, wishlist });
@@ -16,7 +16,7 @@ const removeFromWishlist = async (req, res) => {
   try {
     const userId = req.user._id;
     const productId = req.params.productId;
-    const { skuCode } = req.body; // optional
+    const { skuCode } = req.body || {}; // optional
 
     const wishlist = await WishlistService.removeFromWishlist(userId, productId, skuCode);
     res.status(200).json({ success: true, wishlist });
@@ -36,4 +36,4 @@ const getWishlist = async (req, res) => {
   }
 };
 
-module.exports = {addToWishlist,removeFromWishlist,getWishlist}
+module.exports = { addToWishlist, removeFromWishlist, getWishlist }

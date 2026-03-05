@@ -28,7 +28,7 @@ export const updatePayment = (reqData) => async (dispatch) => {
     dispatch({ type: UPDATE_PAYMENT_REQUEST });
     try {
         const { data } = await api.get(
-            `/api/jewelmart/callback?payment_id=${reqData.paymentId}&payment_link_id=${reqData.paymentLinkId}&payment_link_status=${reqData.status}&orderId=${reqData.orderId}`
+            `/api/jewelmart/callback?razorpay_payment_id=${reqData.paymentId}&razorpay_payment_link_id=${reqData.paymentLinkId}&razorpay_payment_link_status=${reqData.status}&orderId=${reqData.orderId}`
         );
         dispatch({ type: UPDATE_PAYMENT_SUCCESS, payload: data });
     } catch (error) {

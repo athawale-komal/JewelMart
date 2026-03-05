@@ -29,8 +29,8 @@ export const addToWishlist = (productId) => async (dispatch) => {
 export const removeFromWishlist = (productId) => async (dispatch) => {
     dispatch({ type: REMOVE_FROM_WISHLIST_REQUEST });
     try {
-        await api.delete(`/api/jewelmart/wishlist/${productId}`);
-        dispatch({ type: REMOVE_FROM_WISHLIST_SUCCESS, payload: productId });
+        const { data } = await api.delete(`/api/jewelmart/wishlist/${productId}`);
+        dispatch({ type: REMOVE_FROM_WISHLIST_SUCCESS, payload: data.wishlist });
     } catch (error) {
         dispatch({ type: REMOVE_FROM_WISHLIST_FAILURE, payload: error.message });
     }

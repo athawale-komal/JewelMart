@@ -13,6 +13,7 @@ import About from './Pages/About';
 import Contact from './Pages/Contact';
 import Orders from './Pages/Order';
 import OrderHistory from './Pages/OrderHistory';
+import OrderDetails from './Pages/OrderDetails';
 import Profile from './Pages/Profile';
 import CategoryPage from './Pages/CategoryPage';
 import ShippingPolicy from './Pages/ShippingPolicy';
@@ -38,6 +39,7 @@ import { restoreAuth } from './States/Auth/Action';
 import ProductDetail from './Pages/ProductDetails';
 import { getCart } from './States/Cart/Action';
 import { getWishlist } from './States/Wishlist/Action';
+import { findProducts } from './States/Products/Action';
 
 
 const App = () => {
@@ -60,6 +62,7 @@ const App = () => {
   }, [dispatch, auth.jwt, auth.user]);
 
   useEffect(() => {
+    dispatch(findProducts({})); // Fetch products globally for Header etc.
     if (auth.user) {
       dispatch(getCart());
       dispatch(getWishlist());
@@ -79,6 +82,7 @@ const App = () => {
         <Route path='/contact' element={<Contact />} />
         <Route path='/orders' element={<Orders />} />
         <Route path='/order-history' element={<OrderHistory />} />
+        <Route path='/order/:id' element={<OrderDetails />} />
         <Route path='/wishlist' element={<Wishlist />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/checkout' element={<Checkout />} />

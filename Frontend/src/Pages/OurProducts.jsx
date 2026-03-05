@@ -6,6 +6,7 @@ import { addItemToCart } from "../States/Cart/Action";
 import { useNavigate } from "react-router-dom";
 import { Heart, Loader2, ShoppingCart } from "lucide-react";
 import { toast } from "react-toastify";
+import ProductCard from "../Components/Product/ProductCard";
 
 const OurProduct = () => {
   const [search, setSearch] = useState("");
@@ -61,20 +62,7 @@ const OurProduct = () => {
     setSearch("");
   };
 
-  // Navigate to product detail page
-  const handleQuickView = (productId) => {
-    navigate(`/product/${productId}`);
-  };
 
-  const handleWishlist = (productId) => {
-    dispatch(addToWishlist(productId));
-    toast.success("Added to Wishlist!");
-  };
-
-  const handleAddToCart = (productId) => {
-    dispatch(addItemToCart({ productId, quantity: 1 }));
-    toast.success("Added to Cart!");
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50">
@@ -279,121 +267,66 @@ const OurProduct = () => {
                 <div className="flex justify-center items-center h-64">
                   <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
                 </div>
-              ) : filteredProducts.map((item) => (
-                <div
-                  key={item._id || item.id}
-                  className={`group bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${viewMode === "list" ? "flex flex-row" : "flex flex-col"
-                    }`}
-                >
-                  {/* Product Image */}
-                  <div className={`relative overflow-hidden ${viewMode === "list" ? "w-64 shrink-0" : "w-full"
-                    }`}>
-                    <img
-                      src={item.images?.[0] || item.image}
-                      alt={item.title || item.name}
-                      className={`object-cover transition-transform duration-500 group-hover:scale-110 ${viewMode === "list" ? "h-full w-full" : "h-72 w-full"
-                        }`}
-                    />
-
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
-                      <button
-                        onClick={() => navigate(`/product/${item._id || item.id}`)}
-                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all duration-300 shadow-xl"
-                        title="Quick View"
-                      >
-                        <svg className="w-5 h-5 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleWishlist(item._id || item.id)}
-                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-xl"
-                        title="Add to Wishlist"
-                      >
-                        <Heart className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleAddToCart(item._id || item.id)}
-                        className="w-12 h-12 rounded-full bg-white text-slate-800 flex items-center justify-center hover:bg-amber-600 hover:text-white transition-all duration-300 shadow-xl"
-                        title="Add to Cart"
-                      >
-                        <ShoppingCart className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2">
-                      {item.purity && (
-                        <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                          {item.purity}
-                        </span>
-                      )}
-                      {item.discount && (
-                        <span className="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                          {item.discount}% OFF
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Rating Badge */}
-                    {item.rating && (
-                      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md flex items-center gap-1">
-                        <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        <span className="font-semibold text-sm text-slate-700">{item.rating}</span>
+              ) : (
+                filteredProducts.map((item) => (
+                  <div key={item._id || item.id} className={viewMode === "list" ? "w-full" : ""}>
+                    {viewMode === "grid" ? (
+                      <ProductCard product={item} />
+                    ) : (
+                      <div className="group bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 flex flex-row">
+                        {/* List View Image */}
+                        <div className="w-64 shrink-0 relative overflow-hidden">
+                          <img
+                            src={item.images?.[0] || item.image}
+                            alt={item.title || item.name}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onClick={() => navigate(`/product/${item._id || item.id}`)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </div>
+                        {/* List View Details */}
+                        <div className="p-6 flex-1 flex flex-col">
+                          <span className="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit mb-3">
+                            {item.category || "Jewellery"}
+                          </span>
+                          <h3
+                            onClick={() => navigate(`/product/${item._id || item.id}`)}
+                            className="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors cursor-pointer"
+                          >
+                            {item.title || item.name}
+                          </h3>
+                          <p className="text-sm text-slate-600 mb-4 line-clamp-2 flex-grow">
+                            {item.description}
+                          </p>
+                          <div className="mb-4">
+                            <div className="flex items-baseline gap-3">
+                              <span className="text-3xl font-bold text-slate-900">
+                                ₹{item.discountedPrice?.toLocaleString() || item.price?.toLocaleString()}
+                              </span>
+                              {item.price > item.discountedPrice && (
+                                <span className="text-lg text-slate-400 line-through">
+                                  ₹{item.price?.toLocaleString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-4">
+                            <button
+                              onClick={() => {
+                                dispatch(addItemToCart({ productId: item._id, quantity: 1 }));
+                                toast.success("Added to Cart!");
+                              }}
+                              className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-600 transition-all flex items-center gap-2"
+                            >
+                              <ShoppingCart className="w-4 h-4" /> Add to Cart
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {/* Product Details */}
-                  <div className="p-6 flex-1 flex flex-col">
-                    {/* Category Badge */}
-                    <span className="inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full w-fit mb-3">
-                      {item.category || "Ring"}
-                    </span>
-
-                    {/* Product Name */}
-                    <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">
-                      {item.title || item.name}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-sm text-slate-600 mb-4 line-clamp-2 flex-grow">
-                      {item.description}
-                    </p>
-
-                    {/* Price Section */}
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-3xl font-bold text-slate-900">
-                          ₹{item.price.toLocaleString()}
-                        </span>
-                        {item.originalPrice && (
-                          <span className="text-lg text-slate-400 line-through">
-                            ₹{item.originalPrice.toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Material & Weight */}
-                    <div className="flex items-center justify-between text-sm text-slate-600 mb-5 pb-5 border-b border-slate-100">
-                      <span className="font-medium">{item.material || "Gold"}</span>
-                      <span className="font-medium">{item.weight || "5g"}</span>
-                    </div>
-
-                    {/* Add to Cart Button */}
-                    <button
-                      onClick={() => handleAddToCart(item._id || item.id)}
-                      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group">
-                      <span>Add to Cart</span>
-                      <ShoppingCart className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* No Results Message */}

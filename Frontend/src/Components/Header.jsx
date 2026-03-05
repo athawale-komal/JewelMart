@@ -8,14 +8,21 @@ import { products } from '../Data/Product';
 import { logoutUser } from '../States/Auth/Action';
 import { useDispatch, useSelector } from 'react-redux';
 
-const CATEGORIES = [...new Set(products.map(p => p.category))];
+
 
 export default function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, jwt } = useSelector(s => s.auth);
-  const { cart, cartItems } = useSelector(s => s.cart);
+  const { cartItems } = useSelector(s => s.cart);
+  const { wishlist } = useSelector(s => s.wishlist);
+  const { products: allProducts } = useSelector(s => s.product);
+
   const cartCount = cartItems?.length || 0;
+  const wishlistCount = wishlist?.length || 0;
+
+  // Dynamic categories from allProducts
+  const CATEGORIES = [...new Set(allProducts?.map(p => p.category))].filter(Boolean);
   const isLoggedIn = !!jwt && !!user;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
@@ -96,7 +103,7 @@ export default function Header() {
               </button>
 
               {catOpen && (
-                <div className="dropdown-enter absolute top-[calc(100%+6px)] left-0 w-52 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 overflow-hidden"
+                <div className="dropdown-enter absolute top-[calc(100%+6px)] left-0 w-52 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 overflow-hidden z-50 transition-all duration-300 transform origin-top"
                   onMouseEnter={openCat} onMouseLeave={closeCat}>
                   <div className="px-4 pt-3 pb-1.5">
                     <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-stone-400">Explore</p>
@@ -147,16 +154,70 @@ export default function Header() {
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-72 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3">
+                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-80 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3 z-[60]">
                   <div className="relative">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                     <input autoFocus value={searchVal} onChange={e => setSearchVal(e.target.value)}
                       placeholder="Search jewellery…"
                       className="search-glow w-full pl-9 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-amber-300 transition-all text-stone-800 placeholder-stone-400" />
                   </div>
+
+                  {/* Search Suggestions */}
+                  {searchVal.trim().length > 0 && (
+                    <div className="mt-3 max-h-96 overflow-y-auto space-y-1 custom-scrollbar">
+                      {allProducts?.filter(p =>
+                        p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                        p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                      ).slice(0, 6).map(product => (
+                        <div
+                          key={product._id}
+                          onClick={() => {
+                            navigate(`/product/${product._id}`);
+                            setSearchOpen(false);
+                            setSearchVal('');
+                          }}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-amber-50 cursor-pointer group transition-colors"
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                            <img src={product.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[0.82rem] font-bold text-stone-800 truncate group-hover:text-amber-700 transition-colors">
+                              {product.title}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[0.65rem] font-bold text-amber-600 uppercase tracking-tight">{product.category}</p>
+                              <span className="text-stone-300 text-[0.6rem]">•</span>
+                              <p className="text-[0.75rem] font-bold text-stone-900">₹{product.discountedPrice?.toLocaleString() || product.price?.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <ChevronDown size={12} className="-rotate-90 text-stone-300 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" />
+                        </div>
+                      ))}
+                      {allProducts?.filter(p =>
+                        p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                        p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                      ).length === 0 && (
+                          <p className="text-center py-4 text-stone-400 text-[0.8rem]">No products found</p>
+                        )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+
+            {/* Wishlist Icon */}
+            <Link to="/wishlist" className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${scrolled
+              ? 'text-stone-600 hover:bg-stone-100 hover:text-rose-600'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
+              }`}>
+              <Heart size={19} className={wishlistCount > 0 ? "fill-rose-500 text-rose-500" : ""} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full border border-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <Link to="/cart" className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${scrolled
@@ -263,8 +324,35 @@ export default function Header() {
               {/* Mobile search */}
               <div className="relative mb-3">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-                <input placeholder="Search jewellery…"
+                <input placeholder="Search jewellery…" value={searchVal} onChange={e => setSearchVal(e.target.value)}
                   className="w-full pl-9 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-amber-300 transition-all" />
+
+                {searchVal.trim().length > 0 && (
+                  <div className="mt-2 bg-white rounded-xl border border-stone-100 shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                    {allProducts?.filter(p =>
+                      p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                      p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                    ).slice(0, 5).map(product => (
+                      <div
+                        key={product._id}
+                        onClick={() => {
+                          navigate(`/product/${product._id}`);
+                          setMobileOpen(false);
+                          setSearchVal('');
+                        }}
+                        className="flex items-center gap-3 p-3 active:bg-amber-50 border-b border-stone-50 last:border-0"
+                      >
+                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                          <img src={product.images?.[0]} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[0.8rem] font-bold text-stone-800 truncate">{product.title}</p>
+                          <p className="text-[0.7rem] text-amber-600 font-bold">₹{product.discountedPrice?.toLocaleString() || product.price?.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Nav links */}

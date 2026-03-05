@@ -5,53 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getOrderHistory, cancelOrder, deleteUserOrder } from '../States/Order/Action';
 import { toast } from 'react-toastify';
 
-const OrderStatusStepper = ({ status }) => {
-  const steps = [
-    { name: 'PLACED', icon: Clock },
-    { name: 'CONFIRMED', icon: CheckCircle2 },
-    { name: 'SHIPPED', icon: Truck },
-    { name: 'DELIVERED', icon: Package }
-  ];
 
-  const currentStep = steps.findIndex(s => s.name === status);
-  const isCancelled = status === 'CANCELLED';
 
-  if (isCancelled) {
-    return (
-      <div className="flex items-center gap-3 p-4 bg-red-500/5 border border-red-500/10 rounded-sm">
-        <XCircle className="w-5 h-5 text-red-500" />
-        <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-red-500">Order Cancelled</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center justify-between w-full max-w-md my-6 relative">
-      <div className="absolute top-1/2 left-0 w-full h-[1px] bg-[#2a2620] -translate-y-1/2 z-0" />
-      <div
-        className="absolute top-1/2 left-0 h-[1px] bg-[#d4af37] -translate-y-1/2 z-0 transition-all duration-1000"
-        style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
-      />
-
-      {steps.map((s, i) => {
-        const Icon = s.icon;
-        const isActive = i <= currentStep;
-        return (
-          <div key={s.name} className="relative z-10 flex flex-col items-center">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all duration-500 ${isActive ? "bg-[#d4af37] border-[#d4af37] text-[#0d0c0a]" : "bg-[#12100d] border-[#2a2620] text-[#3a3528]"
-              }`}>
-              <Icon className="w-4 h-4" />
-            </div>
-            <span className={`absolute -bottom-6 text-[0.5rem] tracking-[0.1em] font-medium whitespace-nowrap ${isActive ? "text-[#d4af37]" : "text-[#3a3528]"
-              }`}>
-              {s.name}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -163,94 +118,61 @@ const Orders = () => {
           <div className="space-y-12">
             {filteredOrders.map((order) => (
               <div key={order._id} className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] group hover:border-[rgba(212,175,55,0.3)] transition-all duration-500 rounded-sm overflow-hidden">
-                {/* Order Header */}
-                <div className="p-8 border-b border-[rgba(212,175,55,0.05)] flex flex-col md:flex-row justify-between gap-6 relative">
+                {/* Order Summary Card */}
+                <div className="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-[rgba(212,175,55,0.05)]">
                   <div className="flex flex-col gap-1">
-                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Order Identifier</span>
-                    <span className="text-sm font-medium text-[#d4af37]">#{order._id}</span>
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Transaction ID</span>
+                    <span className="text-sm font-medium text-[#d4af37]">#{order._id.slice(-12)}</span>
                     <span className="text-[0.55rem] tracking-[0.1em] text-[#4a4438] flex items-center gap-2 mt-1">
                       <Calendar className="w-3 h-3" /> ACQUIRED ON {formatDate(order.createdAt)}
                     </span>
                   </div>
 
-                  <div className="flex-1 max-w-lg">
-                    <OrderStatusStepper status={order.orderStatus} />
+                  <div className="flex flex-col md:items-end">
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Current Status</span>
+                    <span className={`text-[0.65rem] tracking-[0.22em] font-bold uppercase mt-1 ${order.orderStatus === 'CANCELLED' ? 'text-red-500/60' : 'text-[#d4af37]'
+                      }`}>
+                      {order.orderStatus}
+                    </span>
                   </div>
 
                   <div className="md:text-right flex flex-col justify-center">
-                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Total Investment</span>
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Valuation</span>
                     <div className="text-2xl font-light flex items-center md:justify-end gap-1">
                       <span className="text-sm font-bold">₹</span>
                       <span className="tracking-tighter">{order.totalDiscountPrice?.toLocaleString()}</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Order Items */}
-                <div className="p-8 flex flex-col lg:flex-row gap-12">
-                  <div className="flex-1 space-y-6">
-                    {order.orderItems?.map((item, idx) => (
-                      <div key={idx} className="flex gap-6 items-center group/item pb-6 border-b border-[rgba(212,175,55,0.02)] last:border-0 last:pb-0">
-                        <div className="relative cursor-pointer overflow-hidden aspect-[4/5] w-24 border border-[rgba(212,175,55,0.1)]">
-                          <img
-                            src={item.image || item.product?.image}
-                            alt={item.title}
-                            className="w-full h-full object-cover grayscale-[0.5] group-hover/item:grayscale-0 group-hover/item:scale-110 transition-all duration-700"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-xs tracking-[0.2em] uppercase font-light mb-2">{item.title}</h4>
-                          <div className="flex items-center gap-4 text-[0.65rem] text-[#6a6050]">
-                            <span>Quantity: {item.quantity}</span>
-                            <span className="w-1 h-1 rounded-full bg-[#3a3528]" />
-                            <span className="text-[#d4af37]">₹{item.discountedPrice?.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Delivery & Actions */}
-                  <div className="lg:w-80 space-y-8">
-                    <div className="p-6 bg-[#0d0c0a] border border-[rgba(212,175,55,0.05)] rounded-sm">
-                      <div className="flex items-start gap-3 mb-4">
-                        <MapPin className="w-4 h-4 text-[#d4af37]" />
-                        <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#d4af37] font-bold">Destination</span>
-                      </div>
-                      <p className="text-sm font-light mb-1">{order.shippingAddress?.name} {order.shippingAddress?.surname}</p>
-                      <p className="text-xs text-[#8a8070] leading-relaxed">
-                        {order.shippingAddress?.landmark}, {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      <button
-                        onClick={() => navigate(`/checkout`)} // Or specific tracking
-                        className="w-full py-4 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:bg-[#c49a22] transition-all flex items-center justify-center gap-2"
-                      >
-                        Trace Progress <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-
-                      {['PENDING', 'PLACED'].includes(order.orderStatus) && (
-                        <button
-                          onClick={() => handleCancelOrder(order._id)}
-                          className="w-full py-4 border border-red-500/20 text-red-500/80 text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:bg-red-500 hover:text-white transition-all"
-                        >
-                          Request Cancellation
-                        </button>
-                      )}
-
-                      {order.orderStatus === 'CANCELLED' && (
-                        <button
-                          onClick={() => handleDeleteOrder(order._id)}
-                          className="w-full py-4 border border-[rgba(212,175,55,0.2)] text-[#6a6050] text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all flex items-center justify-center gap-2"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Move to Archive
-                        </button>
-                      )}
-                    </div>
+                  <div>
+                    <button
+                      onClick={() => navigate(`/order/${order._id}`)}
+                      className="px-8 py-4 bg-[#d4af37] text-[#0d0c0a] text-[0.6rem] tracking-[0.3em] uppercase font-bold hover:bg-[#c49a22] transition-all flex items-center justify-center gap-2"
+                    >
+                      Trace Progress <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
+
+                {/* Simplified Item Preview */}
+                <div className="px-8 py-6 bg-[rgba(212,175,55,0.02)] flex gap-4 overflow-x-auto scrollbar-hide">
+                  {order.orderItems?.map((item, idx) => (
+                    <div key={idx} className="flex-shrink-0 flex items-center gap-4 bg-[#0d0c0a] p-3 border border-[rgba(212,175,55,0.05)] rounded-sm">
+                      <div className="w-12 h-12 overflow-hidden border border-[rgba(212,175,55,0.1)]">
+                        <img
+                          src={item.image || item.product?.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover grayscale-[0.5]"
+                        />
+                      </div>
+                      <div className="pr-4">
+                        <h4 className="text-[0.55rem] tracking-[0.1em] uppercase text-[#8a8070] truncate max-w-[120px]">{item.title}</h4>
+                        <p className="text-[0.5rem] text-[#3a3528]">QTY: {item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             ))}
           </div>

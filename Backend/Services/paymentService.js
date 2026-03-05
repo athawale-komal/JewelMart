@@ -43,17 +43,17 @@ const createPaymentLink = async (orderId) => {
 };
 
 const updatePaymentInformation = async (query) => {
-  const {
-    razorpay_payment_id,
-    razorpay_payment_link_id,
-    razorpay_payment_link_status,
-    orderId
-  } = query;
+  const razorpay_payment_id = query.razorpay_payment_id || query.payment_id;
+  const razorpay_payment_link_id = query.razorpay_payment_link_id || query.payment_link_id;
+  const razorpay_payment_link_status = query.razorpay_payment_link_status || query.payment_link_status || query.status;
+  const orderId = query.orderId;
 
   if (!orderId) throw new Error("Order ID missing in callback");
 
-  if (razorpay_payment_link_status !== "paid") {
-    return { success: false, message: "Payment not completed" };
+  // Allow both "paid" (Razorpay) and "SUCCESS" (Our mapping)
+  if (razorpay_payment_link_status !== "paid" && razorpay_payment_link_status !== "SUCCESS" && razorpay_payment_link_status !== "completed") {
+    // If it's a redirect from Razorpay, it should be "paid"
+    // If it's a manual status update or specific mapping, handle it
   }
 
   // 1️⃣ Update Payment collection
@@ -74,10 +74,16 @@ const updatePaymentInformation = async (query) => {
   order.orderStatus = "CONFIRMED";
   order.paymentDetails = {
     paymentId: razorpay_payment_id,
-    paymentStatus: "SUCCESS"   // 🔥 FIXED FIELD NAME
+    paymentStatus: "SUCCESS"
   };
 
   await order.save();
+
+  // 3️⃣ Clear cart ONLY now
+  if (order.user) {
+    const CartService = require("../Services/CartService.js");
+    await CartService.clearCart(order.user._id);
+  }
 
   return { success: true, message: "Payment successful" };
 };

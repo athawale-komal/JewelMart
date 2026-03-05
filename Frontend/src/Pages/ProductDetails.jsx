@@ -197,7 +197,7 @@ const ProductDetail = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50 pt-18">
       {/* Breadcrumb */}
       <div className="bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 md:px-8 h-12 flex items-center gap-2 text-xs text-slate-500">

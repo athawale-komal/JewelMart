@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDeletedHistory, deleteHistoryItem } from '../States/Order/Action';
-import { History, Trash2, ArrowLeft, Loader2, IndianRupee, ShoppingBag, Eye, Calendar } from 'lucide-react';
+import { History, Trash2, ArrowLeft, Loader2, AlertCircle, ShoppingBag, Eye, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 

@@ -52,7 +52,7 @@ const createOrder = async (user, shippingAddress) => {
   for (const item of items) {
     const orderItem = await OrderItem.create({
       product: item.product._id,
-      skuCode: item.productSku || item.product.productSku,
+      skuCode: item.productSku || item.product.productSku || "N/A",
       quantity: item.quantity,
       price: item.price,
       discountedPrice: item.discountedPrice,
@@ -75,8 +75,8 @@ const createOrder = async (user, shippingAddress) => {
     totalItem: cart.totalItem,
   });
 
-  // Clear cart after order
-  await CartService.clearCart(user._id);
+  // Cart will now be cleared only after successful payment in PaymentService
+  // await CartService.clearCart(user._id);
 
   return order;
 };
@@ -252,7 +252,7 @@ const deleteOrderItem = async (orderItemId, user) => {
 
 
 // EXPORT ALL
-module.exports =  {
+module.exports = {
   getHistory,
   deleteOrderItem,
   createOrder,
