@@ -9,8 +9,8 @@ app.use(cors())
 const AuthRoutes = require('./Routes/AuthRoutes');
 app.use('/api/jewelmart', AuthRoutes);
 
- const ProductRoutes = require('./Routes/ProductRoutes')
- app.use('/api/jewelmart', ProductRoutes);
+const ProductRoutes = require('./Routes/ProductRoutes')
+app.use('/api/jewelmart', ProductRoutes);
 
 const Cart_Route = require('./Routes/CartRoutes')
 app.use('/api/jewelmart', Cart_Route);
@@ -32,6 +32,9 @@ app.use('/api/jewelmart', ReviewRoute);
 
 const PaymentRoute = require('./Routes/PaymentRoutes.js')
 app.use('/api/jewelmart', PaymentRoute);
+
+const AddressRoutes = require('./Routes/AddressRoutes.js')
+app.use('/api/jewelmart', AddressRoutes);
 
 
 module.exports = app;   

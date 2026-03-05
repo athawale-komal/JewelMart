@@ -24,11 +24,11 @@ const getStrength = (pw) => {
 };
 
 const strengthMeta = [
-  { label: "",       bar: "bg-zinc-700" },
-  { label: "Weak",   bar: "bg-red-500",    text: "text-red-400" },
-  { label: "Fair",   bar: "bg-amber-500",  text: "text-amber-400" },
-  { label: "Good",   bar: "bg-yellow-400", text: "text-yellow-300" },
-  { label: "Strong", bar: "bg-emerald-400",text: "text-emerald-400" },
+  { label: "", bar: "bg-zinc-700" },
+  { label: "Weak", bar: "bg-red-500", text: "text-red-400" },
+  { label: "Fair", bar: "bg-amber-500", text: "text-amber-400" },
+  { label: "Good", bar: "bg-yellow-400", text: "text-yellow-300" },
+  { label: "Strong", bar: "bg-emerald-400", text: "text-emerald-400" },
 ];
 
 export default function Login() {
@@ -37,13 +37,13 @@ export default function Login() {
   // ← now reading jwt from store too
   const { loading, error, user, jwt } = useSelector((s) => s.auth);
 
-  const [mode,         setMode]         = useState("login");
-  const [showPw,       setShowPw]       = useState(false);
-  const [showCPw,      setShowCPw]      = useState(false);
+  const [mode, setMode] = useState("login");
+  const [showPw, setShowPw] = useState(false);
+  const [showCPw, setShowCPw] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [photoFile,    setPhotoFile]    = useState(null);
-  const fileRef     = useRef(null);
-  const navigated   = useRef(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const fileRef = useRef(null);
+  const navigated = useRef(false);
 
   const [form, setForm] = useState({
     name: "", surname: "", email: "", mobile: "",
@@ -51,11 +51,11 @@ export default function Login() {
   });
 
   const strength = getStrength(form.password);
-  const isLogin  = mode === "login";
+  const isLogin = mode === "login";
 
   useEffect(() => {
     if (navigated.current) return;
-    if (!user || !jwt) return;           
+    if (!user || !jwt) return;
     const role = extractRole(user);
     const dest = redirectPath(role);
 
@@ -123,13 +123,13 @@ export default function Login() {
           style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(212,175,55,0.04) 80px),repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(212,175,55,0.04) 80px)" }} />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 55% 45% at 50% 50%, rgba(212,175,55,0.1) 0%, transparent 70%)" }} />
-        {["top-8 left-8","top-8 right-8","bottom-8 left-8","bottom-8 right-8"].map((pos, i) => (
+        {["top-8 left-8", "top-8 right-8", "bottom-8 left-8", "bottom-8 right-8"].map((pos, i) => (
           <div key={i} className={`absolute w-8 h-8 ${pos}`}
             style={{
-              borderTop:    i < 2  ? "1px solid rgba(212,175,55,0.3)" : "none",
+              borderTop: i < 2 ? "1px solid rgba(212,175,55,0.3)" : "none",
               borderBottom: i >= 2 ? "1px solid rgba(212,175,55,0.3)" : "none",
-              borderLeft:   i % 2 === 0 ? "1px solid rgba(212,175,55,0.3)" : "none",
-              borderRight:  i % 2 !== 0 ? "1px solid rgba(212,175,55,0.3)" : "none",
+              borderLeft: i % 2 === 0 ? "1px solid rgba(212,175,55,0.3)" : "none",
+              borderRight: i % 2 !== 0 ? "1px solid rgba(212,175,55,0.3)" : "none",
             }} />
         ))}
         <div className="relative z-10 text-center px-12 max-w-xs">
@@ -161,9 +161,8 @@ export default function Login() {
           <div className="flex mb-8 border-b border-[rgba(212,175,55,0.12)]">
             {[{ key: "login", label: "Sign In" }, { key: "register", label: "Create Account" }].map(({ key, label }) => (
               <button key={key} onClick={() => switchMode(key)}
-                className={`flex-1 pb-3 text-[0.65rem] tracking-[0.28em] uppercase font-medium transition-all duration-300 ${
-                  mode === key ? "border-b-2 border-[#d4af37] -mb-px text-[#d4af37]" : "text-[#4a4438] hover:text-[#8a7c68]"
-                }`}>
+                className={`flex-1 pb-3 text-[0.65rem] tracking-[0.28em] uppercase font-medium transition-all duration-300 ${mode === key ? "border-b-2 border-[#d4af37] -mb-px text-[#d4af37]" : "text-[#4a4438] hover:text-[#8a7c68]"
+                  }`}>
                 {label}
               </button>
             ))}
@@ -253,7 +252,7 @@ export default function Login() {
               {!isLogin && form.password && (
                 <div className="mt-2.5 space-y-1.5">
                   <div className="flex gap-1">
-                    {[1,2,3,4].map((i) => (
+                    {[1, 2, 3, 4].map((i) => (
                       <div key={i} className={`h-0.5 flex-1 transition-all duration-300 ${i <= strength ? strengthMeta[strength].bar : "bg-[#252018]"}`} />
                     ))}
                   </div>

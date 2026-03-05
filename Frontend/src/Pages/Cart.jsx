@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 export default function Cart() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { cart, loading } = useSelector((state) => state.cart);
+    const { cart, cartItems, loading } = useSelector((state) => state.cart);
 
     useEffect(() => {
         dispatch(getCart());
@@ -35,7 +35,7 @@ export default function Cart() {
         );
     }
 
-    const cartItems = cart?.cartItems || [];
+    const items = cartItems || [];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50 pt-20 pb-16">
@@ -45,12 +45,12 @@ export default function Cart() {
                     <h1 className="text-2xl font-bold text-slate-900 uppercase tracking-widest">Your Cart</h1>
                     <div className="h-px flex-1 bg-slate-200" />
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+                        {items.length} {items.length === 1 ? "item" : "items"}
                     </span>
                 </div>
 
                 {/* Empty State */}
-                {cartItems.length === 0 ? (
+                {items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border border-slate-100 shadow-sm">
                         <ShoppingBag size={56} className="text-slate-200 mb-5" />
                         <h2 className="text-xl font-bold text-slate-600 mb-2">Your cart is empty</h2>
@@ -66,7 +66,7 @@ export default function Cart() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Cart Items */}
                         <div className="lg:col-span-2 space-y-4">
-                            {cartItems.map((item) => (
+                            {items.map((item) => (
                                 <div
                                     key={item._id}
                                     className="flex gap-5 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-amber-200 transition-all group"
@@ -168,7 +168,7 @@ export default function Cart() {
 
                                 <div className="flex justify-between items-center py-4 border-t border-b border-slate-100 mb-6">
                                     <span className="text-sm font-bold text-slate-700 uppercase tracking-wider">Total</span>
-                                    <span className="text-2xl font-bold text-amber-600">₹{cart?.totalDiscountedPrice?.toLocaleString()}</span>
+                                    <span className="text-2xl font-bold text-amber-600">₹{cart?.totalPayable?.toLocaleString()}</span>
                                 </div>
 
                                 {cart?.discount > 0 && (

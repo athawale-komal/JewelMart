@@ -168,8 +168,15 @@ const CATEGORIES = [
     { value: "rings", label: "Rings" },
     { value: "necklaces", label: "Necklaces" },
     { value: "earrings", label: "Earrings" },
+    { value: "bangles", label: "Bangles" },
     { value: "bracelets", label: "Bracelets" },
+    { value: "mangalsutra", label: "Mangalsutra" },
+    { value: "anklets", label: "Anklets" },
+    { value: "nose-pins", label: "Nose Pin" },
     { value: "pendants", label: "Pendants" },
+    { value: "chains", label: "Chains" },
+    { value: "toe-rings", label: "Toe Ring" },
+    { value: "kada", label: "Kada" },
 ];
 
 const BLANK_FORM = {
@@ -188,7 +195,7 @@ export default function AdminProducts() {
 
     const dispatch = useDispatch();
     const { products, loading } = useSelector((state) => state.product);
-     
+
     useEffect(() => { dispatch(findProducts()); }, [dispatch]);
 
     const handleInputChange = (e) => {

@@ -1,219 +1,356 @@
-
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCart } from "../States/Cart/Action";
 import { createOrder } from "../States/Order/Action";
+import { createPayment } from "../States/Payment/Action";
+import { getAddresses, createAddress, updateAddress, deleteAddress } from "../States/Address/Action";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Plus, Check, ArrowLeft, Loader2, ShieldCheck, Truck, CreditCard } from "lucide-react";
+import { MapPin, Plus, Check, ArrowLeft, Loader2, ShieldCheck, Truck, CreditCard, Trash2, Home, Briefcase, Pencil, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function Checkout() {
     const [step, setStep] = useState(1);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [showAddressForm, setShowAddressForm] = useState(false);
-    const [newAddress, setNewAddress] = useState({
+    const [editingAddressId, setEditingAddressId] = useState(null);
+    const [newAddressForm, setNewAddressForm] = useState({
         name: "", surname: "", email: "", mobile: "",
         landmark: "", city: "", state: "", pincode: "", country: "India"
     });
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { cart } = useSelector((state) => state.cart);
-    const { user } = useSelector((state) => state.auth);
-    const { loading: orderLoading } = useSelector((state) => state.order);
+
+    // Safety checks for state selection
+    const { cart, cartItems } = useSelector((state) => state.cart || { cart: {}, cartItems: [] });
+    const { user } = useSelector((state) => state.auth || {});
+    const addressState = useSelector((state) => state.address || { addresses: [], loading: false });
+    const { addresses = [], loading: addressLoading = false } = addressState;
+    const orderState = useSelector((state) => state.order || { loading: false });
+    const paymentState = useSelector((state) => state.payment || { loading: false });
 
     useEffect(() => {
         dispatch(getCart());
+        dispatch(getAddresses());
     }, [dispatch]);
 
-    const handleAddressChange = (e) => {
-        setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+    // Error handling with toasts
+    const orderError = useSelector(state => state.order?.error);
+    const paymentError = useSelector(state => state.payment?.error);
+
+    useEffect(() => {
+        if (orderError) toast.error(orderError);
+        if (paymentError) toast.error(paymentError);
+    }, [orderError, paymentError]);
+
+    const handleAddressInputChange = (e) => {
+        setNewAddressForm({ ...newAddressForm, [e.target.name]: e.target.value });
     };
 
-    const handleAddAddress = (e) => {
+    const handleCreateAddress = async (e) => {
         e.preventDefault();
-        if (Object.values(newAddress).some(val => !val)) {
-            toast.error("Please fill all fields");
-            return;
+        try {
+            if (editingAddressId) {
+                await dispatch(updateAddress(editingAddressId, newAddressForm));
+                toast.success("Address updated successfully");
+            } else {
+                const created = await dispatch(createAddress(newAddressForm));
+                setSelectedAddress(created);
+                toast.success("Address added successfully");
+            }
+            setShowAddressForm(false);
+            setEditingAddressId(null);
+            setNewAddressForm({
+                name: "", surname: "", email: "", mobile: "",
+                landmark: "", city: "", state: "", pincode: "", country: "India"
+            });
+        } catch (err) {
+            toast.error(editingAddressId ? "Failed to update address" : "Failed to add address");
         }
-        // In our simplified version, we just use this address for the order
-        setSelectedAddress(newAddress);
-        setShowAddressForm(false);
-        setStep(2);
     };
 
-    const handlePlaceOrder = () => {
+    const handleEditAddress = (e, addr) => {
+        e.stopPropagation();
+        setNewAddressForm(addr);
+        setEditingAddressId(addr._id);
+        setShowAddressForm(true);
+    };
+
+    const handleCancelForm = () => {
+        setShowAddressForm(false);
+        setEditingAddressId(null);
+        setNewAddressForm({
+            name: "", surname: "", email: "", mobile: "",
+            landmark: "", city: "", state: "", pincode: "", country: "India"
+        });
+    };
+
+    const handleDeleteAddress = (e, id) => {
+        e.stopPropagation();
+        if (selectedAddress?._id === id) setSelectedAddress(null);
+        dispatch(deleteAddress(id));
+    };
+
+    const handlePlaceOrder = async () => {
         if (!selectedAddress) {
             toast.error("Please select an address");
             return;
         }
-        dispatch(createOrder(selectedAddress, navigate));
+
+        try {
+            const created = await dispatch(createOrder({ shippingAddress: selectedAddress }));
+            if (created && created._id) {
+                const payment = await dispatch(createPayment(created._id));
+                if (payment && payment.paymentUrl) {
+                    window.location.href = payment.paymentUrl;
+                }
+            }
+        } catch (err) {
+            console.error("Order conversion failed", err);
+        }
     };
 
-    const inp = "w-full px-4 py-2.5 bg-[#171510] border border-[rgba(212,175,55,0.1)] text-[#e8dfc8] placeholder-[#3a3528] outline-none focus:border-[rgba(212,175,55,0.4)] transition-all text-sm";
+    const inp = "w-full bg-[#0d0c0a] border border-[rgba(212,175,55,0.1)] px-5 py-4 text-sm text-[#e8dfc8] focus:border-[rgba(212,175,55,0.4)] outline-none transition-all rounded-sm placeholder-[#3a3528]";
 
     return (
-        <div className="min-h-screen bg-[#0d0c0a] text-[#e8dfc8] pt-24 pb-12" style={{ fontFamily: "'Jost', sans-serif" }}>
-            <div className="max-w-6xl mx-auto px-6">
-                {/* Stepper */}
-                <div className="flex items-center justify-center mb-16">
+        <div className="min-h-screen bg-[#0d0c0a] text-[#e8dfc8] pt-32 pb-20 px-6 lg:px-14" style={{ fontFamily: "'Jost', sans-serif" }}>
+            <div className="max-w-7xl mx-auto">
+                {/* Stepper Header */}
+                <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8 relative">
+                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-[rgba(212,175,55,0.1)] -translate-y-1/2 hidden md:block z-0" />
                     {[
-                        { id: 1, name: "Shipping" },
-                        { id: 2, name: "Review" },
-                        { id: 3, name: "Payment" }
-                    ].map((s, i) => (
-                        <React.Fragment key={s.id}>
-                            <div className="flex flex-col items-center">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${step >= s.id ? "border-[#d4af37] bg-[#d4af37] text-[#0d0c0a]" : "border-[#3a3528] text-[#3a3528]"
-                                    }`}>
-                                    {step > s.id ? <Check className="w-5 h-5" /> : <span className="text-xs font-bold">{s.id}</span>}
-                                </div>
-                                <span className={`text-[0.6rem] tracking-[0.2em] uppercase mt-3 ${step >= s.id ? "text-[#d4af37]" : "text-[#3a3528]"}`}>
-                                    {s.name}
-                                </span>
+                        { num: 1, label: "Shipping", sub: "Destination" },
+                        { num: 2, label: "Review", sub: "Order Summary" },
+                        { num: 3, label: "Payment", sub: "Complete Purchase" }
+                    ].map((s) => (
+                        <div key={s.num} className={`relative z-10 flex items-center gap-4 px-8 py-4 rounded-full border transition-all duration-500 ${step >= s.num ? "bg-[#d4af37] border-[#d4af37] text-[#0d0c0a]" : "bg-[#0d0c0a] border-[rgba(212,175,55,0.2)] text-[#6a6050]"
+                            }`}>
+                            <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${step >= s.num ? "bg-[#0d0c0a] text-[#d4af37]" : "bg-[#12100d] text-[#3a3528]"
+                                }`}>{s.num}</span>
+                            <div className="flex flex-col">
+                                <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold">{s.label}</span>
+                                <span className={`text-[0.5rem] tracking-[0.1em] uppercase ${step >= s.num ? "text-[rgba(13,12,10,0.6)]" : "text-[#3a3528]"}`}>{s.sub}</span>
                             </div>
-                            {i < 2 && <div className={`w-24 h-[2px] mx-4 -mt-8 transition-all duration-500 ${step > s.id ? "bg-[#d4af37]" : "bg-[#3a3528]"}`}></div>}
-                        </React.Fragment>
+                        </div>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    <div className="lg:col-span-2">
-                        {step === 1 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="flex justify-between items-end border-b border-[rgba(212,175,55,0.1)] pb-4">
-                                    <h2 className="text-2xl font-light tracking-widest uppercase italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                                        Shipping Destination
-                                    </h2>
-                                    {!showAddressForm && (
-                                        <button onClick={() => setShowAddressForm(true)} className="text-[0.6rem] tracking-[0.2em] uppercase text-[#d4af37] flex items-center gap-2 hover:underline">
-                                            <Plus className="w-3 h-3" /> Add New Address
-                                        </button>
-                                    )}
-                                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                    {/* Left Column: Flow */}
+                    <div className="lg:col-span-2 space-y-12">
 
+                        {/* Step 1: Destination */}
+                        <div className={`transition-all duration-700 ${step === 1 ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-3xl font-light italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Shipping Destination</h2>
+                                {step > 1 && (
+                                    <button onClick={() => setStep(1)} className="text-[0.6rem] tracking-[0.3em] uppercase text-[#d4af37] hover:underline">Change Address</button>
+                                )}
+                            </div>
+
+                            <div className="space-y-6">
                                 {showAddressForm ? (
-                                    <form onSubmit={handleAddAddress} className="grid grid-cols-2 gap-4 p-8 bg-[#12100d] border border-[rgba(212,175,55,0.15)]">
-                                        <input name="name" placeholder="First Name" onChange={handleAddressChange} className={inp} />
-                                        <input name="surname" placeholder="Last Name" onChange={handleAddressChange} className={inp} />
-                                        <input name="email" type="email" placeholder="Email Address" onChange={handleAddressChange} className={inp} />
-                                        <input name="mobile" placeholder="Mobile Number" onChange={handleAddressChange} className={inp} />
-                                        <div className="col-span-2">
-                                            <input name="landmark" placeholder="Building, Street, Area" onChange={handleAddressChange} className={inp} />
+                                    <form onSubmit={handleCreateAddress} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#12100d] p-8 border border-[rgba(212,175,55,0.1)] rounded-sm">
+                                        <div className="col-span-2 mb-2">
+                                            <p className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Personal Details</p>
                                         </div>
-                                        <input name="city" placeholder="City" onChange={handleAddressChange} className={inp} />
-                                        <input name="state" placeholder="State" onChange={handleAddressChange} className={inp} />
-                                        <input name="pincode" placeholder="Pincode" onChange={handleAddressChange} className={inp} />
+                                        <input name="name" placeholder="First Name" value={newAddressForm.name} onChange={handleAddressInputChange} required className={inp} />
+                                        <input name="surname" placeholder="Last Name" value={newAddressForm.surname} onChange={handleAddressInputChange} required className={inp} />
+                                        <input name="email" type="email" placeholder="Email Address" value={newAddressForm.email} onChange={handleAddressInputChange} required className={inp} />
+                                        <input name="mobile" placeholder="Mobile Number" value={newAddressForm.mobile} onChange={handleAddressInputChange} required className={inp} />
+
+                                        <div className="col-span-2 mt-4 mb-2">
+                                            <p className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Delivery Address</p>
+                                        </div>
+                                        <div className="col-span-2">
+                                            <input name="landmark" placeholder="Building, Street, Area" value={newAddressForm.landmark} onChange={handleAddressInputChange} required className={inp} />
+                                        </div>
+                                        <input name="city" placeholder="City" value={newAddressForm.city} onChange={handleAddressInputChange} required className={inp} />
+                                        <input name="state" placeholder="State" value={newAddressForm.state} onChange={handleAddressInputChange} required className={inp} />
+                                        <input name="pincode" placeholder="Pincode" value={newAddressForm.pincode} onChange={handleAddressInputChange} required className={inp} />
                                         <input name="country" placeholder="Country" value="India" readOnly className={inp} />
-                                        <div className="col-span-2 flex gap-4 mt-4">
-                                            <button type="submit" className="flex-1 py-3 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold">Use This Address</button>
-                                            <button type="button" onClick={() => setShowAddressForm(false)} className="flex-1 py-3 border border-[rgba(212,175,55,0.2)] text-[#e8dfc8] text-[0.65rem] tracking-[0.3em] uppercase">Cancel</button>
+
+                                        <div className="col-span-2 flex gap-4 mt-8">
+                                            <button type="submit" className="flex-1 py-4 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:bg-[#c49a22] transition-all">
+                                                {editingAddressId ? "Update Address" : "Save & Deliver Here"}
+                                            </button>
+                                            <button type="button" onClick={handleCancelForm} className="flex-1 py-4 border border-[rgba(212,175,55,0.2)] text-[#e8dfc8] text-[0.65rem] tracking-[0.3em] uppercase hover:bg-[rgba(212,175,55,0.05)]">Cancel</button>
                                         </div>
                                     </form>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {/* If user had addresses, they'd go here. Since we're starting fresh, we'll prompt form. */}
-                                        <div onClick={() => setShowAddressForm(true)} className="border-2 border-dashed border-[#3a3528] p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-[#d4af37] hover:bg-[rgba(212,175,55,0.03)] transition-all group">
-                                            <Plus className="w-8 h-8 text-[#3a3528] group-hover:text-[#d4af37]" />
-                                            <span className="text-[0.6rem] tracking-[0.3rem] uppercase text-[#6a6050] group-hover:text-[#d4af37]">Provide New Address</span>
-                                        </div>
+                                        {addresses?.map((addr) => (
+                                            <div
+                                                key={addr._id}
+                                                onClick={() => setSelectedAddress(addr)}
+                                                className={`p-6 border transition-all cursor-pointer relative group rounded-sm ${selectedAddress?._id === addr._id
+                                                        ? "border-[#d4af37] bg-[rgba(212,175,55,0.05)]"
+                                                        : "border-[rgba(212,175,55,0.1)] bg-[#12100d] hover:border-[rgba(212,175,55,0.3)]"
+                                                    }`}
+                                            >
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin className={`w-4 h-4 ${selectedAddress?._id === addr._id ? "text-[#d4af37]" : "text-[#3a3528]"}`} />
+                                                        <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#d4af37]">Saved Address</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                                        <button
+                                                            onClick={(e) => handleEditAddress(e, addr)}
+                                                            className="p-1.5 hover:bg-[#d4af37]/10 rounded-full text-[#6a6050] hover:text-[#d4af37]"
+                                                        >
+                                                            <Pencil className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                                            className="p-1.5 hover:bg-red-500/10 rounded-full text-[#6a6050] hover:text-red-500"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <p className="text-lg font-light mb-1">{addr.name} {addr.surname}</p>
+                                                <p className="text-sm text-[#8a8070] truncate">{addr.landmark}</p>
+                                                <p className="text-sm text-[#8a8070] mb-6">{addr.city}, {addr.state} - {addr.pincode}</p>
+
+                                                {selectedAddress?._id === addr._id && step === 1 && (
+                                                    <button
+                                                        onClick={() => setStep(2)}
+                                                        className="w-full py-3 bg-[#d4af37] text-[#0d0c0a] text-[0.6rem] tracking-[0.2em] uppercase font-bold hover:bg-[#c49a22] transition-all"
+                                                    >
+                                                        Deliver to this address
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => setShowAddressForm(true)}
+                                            className="p-6 border border-dashed border-[rgba(212,175,55,0.2)] bg-transparent hover:bg-[rgba(212,175,55,0.02)] transition-all flex flex-col items-center justify-center gap-4 text-[#8a8070] hover:text-[#d4af37] rounded-sm group min-h-[180px]"
+                                        >
+                                            <div className="w-12 h-12 rounded-full border border-[rgba(212,175,55,0.1)] flex items-center justify-center group-hover:border-[#d4af37] transition-all">
+                                                <Plus className="w-5 h-5" />
+                                            </div>
+                                            <span className="text-[0.65rem] tracking-[0.3em] uppercase font-bold">Add New Destination</span>
+                                        </button>
                                     </div>
                                 )}
                             </div>
-                        )}
+                        </div>
 
-                        {step === 2 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                                <h2 className="text-2xl font-light tracking-widest uppercase italic border-b border-[rgba(212,175,55,0.1)] pb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                                    Review Your Order
-                                </h2>
-                                <div className="p-8 bg-[#12100d] border border-[rgba(212,175,55,0.15)] flex justify-between items-start">
-                                    <div>
-                                        <p className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050] mb-2">Deliver To</p>
-                                        <p className="text-lg font-light mb-1">{selectedAddress.name} {selectedAddress.surname}</p>
-                                        <p className="text-sm text-[#8a8070]">{selectedAddress.landmark}, {selectedAddress.city}</p>
-                                        <p className="text-sm text-[#8a8070]">{selectedAddress.state} - {selectedAddress.pincode}</p>
-                                    </div>
-                                    <button onClick={() => setStep(1)} className="text-[0.6rem] tracking-[0.2em] uppercase text-[#d4af37] underline">Change</button>
-                                </div>
+                        {/* Step 2: Review Order */}
+                        <div className={`transition-all duration-700 ${step === 2 ? "opacity-100" : (step > 2 ? "opacity-40" : "opacity-0 pointer-events-none")}`}>
+                            <div className="flex items-center justify-between mb-8">
+                                <h2 className="text-3xl font-light italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Artisan Collection Review</h2>
+                            </div>
 
-                                <div className="space-y-4">
-                                    {cart?.cartItems?.map(item => (
-                                        <div key={item._id} className="flex gap-4 p-4 bg-[#12100d]/50 border border-[rgba(212,175,55,0.05)]">
-                                            <img src={item.product?.images?.[0] || item.product?.image} className="w-16 h-20 object-cover border border-[rgba(212,175,55,0.1)]" />
-                                            <div className="flex-1">
-                                                <p className="text-sm font-light uppercase tracking-wide">{item.product?.title}</p>
-                                                <p className="text-[0.6rem] text-[#6a6050]">Qty: {item.quantity}</p>
-                                                <p className="text-sm text-[#d4af37] font-medium mt-1">₹{item.discountedPrice.toLocaleString()}</p>
-                                            </div>
+                            <div className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] rounded-sm overflow-hidden">
+                                {cartItems?.map((item) => (
+                                    <div key={item._id} className="p-6 border-b border-[rgba(212,175,55,0.05)] last:border-0 flex gap-6 items-center">
+                                        <div className="w-20 aspect-[4/5] overflow-hidden border border-[rgba(212,175,55,0.1)]">
+                                            <img src={item.product?.image} className="w-full h-full object-cover grayscale-[0.3]" alt="" />
                                         </div>
-                                    ))}
-                                </div>
-
-                                <div className="flex gap-4 pt-4">
-                                    <button onClick={() => setStep(1)} className="flex items-center gap-2 text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050] hover:text-[#d4af37]">
-                                        <ArrowLeft className="w-3 h-3" /> Back to Shipping
-                                    </button>
-                                    <button onClick={() => setStep(3)} className="ml-auto px-12 py-3.5 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:shadow-xl transition-all">
-                                        Continue to Payment
-                                    </button>
-                                </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-sm tracking-[0.1em] uppercase font-light text-[#e8dfc8]">{item.product?.title}</h4>
+                                            <p className="text-[0.65rem] text-[#8a8070] tracking-[0.1em] uppercase mt-1">Quantity: {item.quantity}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[#d4af37] font-medium text-sm">₹{item.discountedPrice?.toLocaleString()}</p>
+                                            <p className="text-[0.6rem] text-[#3a3528] line-through">₹{item.price?.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        )}
 
-                        {step === 3 && (
-                            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-center py-12">
-                                <div className="w-20 h-20 bg-[rgba(212,175,55,0.05)] rounded-full flex items-center justify-center mx-auto mb-6 border border-[rgba(212,175,55,0.1)]">
-                                    <CreditCard className="w-8 h-8 text-[#d4af37]" />
+                            {step === 2 && (
+                                <div className="flex gap-6 mt-8">
+                                    <button
+                                        onClick={() => setStep(1)}
+                                        className="flex-1 py-5 border border-[rgba(212,175,55,0.2)] text-[#e8dfc8] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:bg-[rgba(212,175,55,0.05)] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        <ArrowLeft className="w-4 h-4" /> Back to Shipping
+                                    </button>
+                                    <button
+                                        onClick={() => setStep(3)}
+                                        className="flex-[2] py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3"
+                                    >
+                                        Proceed to Secure Payment <ArrowRight className="w-4 h-4" />
+                                    </button>
                                 </div>
-                                <h2 className="text-3xl font-light italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Cash on Delivery</h2>
-                                <p className="text-sm text-[#8a8070] max-w-sm mx-auto mb-12 uppercase tracking-[0.1em] leading-relaxed">
-                                    Currently we only support Cash on Delivery to ensure hand-inspected luxury delivery at your doorstep.
+                            )}
+                        </div>
+
+                        {/* Step 3: Payment */}
+                        <div className={`transition-all duration-700 ${step === 3 ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+                            <h2 className="text-3xl font-light italic mb-8" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Settlement Gateway</h2>
+
+                            <div className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] p-10 rounded-sm text-center">
+                                <CreditCard className="w-12 h-12 text-[#d4af37] mx-auto mb-6 opacity-40" />
+                                <h3 className="text-xl font-light mb-4">Secured via Razorpay</h3>
+                                <p className="text-xs text-[#8a8070] leading-relaxed max-w-sm mx-auto mb-10 tracking-[0.1em] uppercase">
+                                    You will be redirected to our encrypted settlement portal to complete your acquisition with Artisan Security protocols.
                                 </p>
-                                <div className="flex justify-center gap-6">
-                                    <button onClick={() => setStep(2)} className="px-8 py-3 border border-[rgba(212,175,55,0.2)] text-[0.65rem] tracking-[0.3em] uppercase">Back to Review</button>
-                                    <button onClick={handlePlaceOrder} disabled={orderLoading} className="px-12 py-3 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold flex items-center gap-2">
-                                        {orderLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Order"}
+
+                                <div className="flex gap-6">
+                                    <button
+                                        onClick={() => setStep(2)}
+                                        className="flex-1 py-5 border border-[rgba(212,175,55,0.2)] text-[#e8dfc8] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:bg-[rgba(212,175,55,0.05)] transition-all"
+                                    >
+                                        Back to Review
+                                    </button>
+                                    <button
+                                        onClick={handlePlaceOrder}
+                                        disabled={paymentState.loading || orderState.loading}
+                                        className="flex-[2] py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                    >
+                                        {(paymentState.loading || orderState.loading) ? <Loader2 className="animate-spin w-5 h-5" /> : "Authorize Payment Session"}
                                     </button>
                                 </div>
+
+                                <div className="mt-12 opacity-30 flex items-center justify-center gap-4">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" alt="Razorpay" className="h-4 invert" />
+                                </div>
                             </div>
-                        )}
+                        </div>
                     </div>
 
+                    {/* Right Column: Summary */}
                     <div className="lg:col-span-1">
-                        <div className="p-8 bg-[#12100d] border border-[rgba(212,175,55,0.15)] sticky top-28">
-                            <h3 className="text-xl font-light tracking-widest uppercase mb-8 pb-4 border-b border-[rgba(212,175,55,0.1)]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                                Order Summary
-                            </h3>
-                            <div className="space-y-4 mb-8">
-                                <div className="flex justify-between text-[0.65rem] tracking-[0.2em] uppercase text-[#6a6050]">
-                                    <span>Subtotal</span>
-                                    <span>₹{cart?.totalPrice?.toLocaleString()}</span>
+                        <div className="sticky top-40 space-y-8">
+                            <div className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] p-8 rounded-sm">
+                                <h3 className="text-[0.65rem] tracking-[0.4em] uppercase text-[#d4af37] font-bold mb-8 flex items-center gap-3">
+                                    <ShieldCheck className="w-4 h-4" /> Investment Summary
+                                </h3>
+
+                                <div className="space-y-4 text-xs tracking-widest uppercase">
+                                    <div className="flex justify-between items-center text-[#6a6050]">
+                                        <span>Artisan Value</span>
+                                        <span>₹{cart?.totalPrice?.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[#6a6050]">
+                                        <span>Exclusive Benefit</span>
+                                        <span className="text-emerald-500 font-medium">-₹{cart?.discount?.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[#6a6050]">
+                                        <span>Curated Delivery</span>
+                                        <span className="text-emerald-500 font-medium">COMPLIMENTARY</span>
+                                    </div>
+                                    <div className="pt-6 mt-6 border-t border-[rgba(212,175,55,0.05)]">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[0.55rem] text-[#8a8070]">Total Contribution</span>
+                                            <span className="text-2xl font-light text-[#e8dfc8]">₹{cart?.totalPayable?.toLocaleString()}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between text-[0.65rem] tracking-[0.2em] uppercase text-[#6a6050]">
-                                    <span>Savings</span>
-                                    <span className="text-emerald-500">₹{cart?.discount?.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between text-[0.65rem] tracking-[0.2em] uppercase text-[#6a6050]">
-                                    <span>Shipping</span>
-                                    <span className="text-emerald-500">Free</span>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-baseline mb-8 pt-4 border-t border-[rgba(212,175,55,0.1)]">
-                                <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold">Total</span>
-                                <span className="text-2xl font-bold text-[#d4af37]">₹{cart?.totalDiscountedPrice?.toLocaleString()}</span>
                             </div>
 
                             <div className="space-y-4">
-                                {[
-                                    { icon: ShieldCheck, text: "Authenticity Guaranteed" },
-                                    { icon: Truck, text: "Insured Express Delivery" }
-                                ].map((itm, i) => (
-                                    <div key={i} className="flex items-center gap-3 text-[0.55rem] tracking-widest uppercase text-[#4a4438]">
-                                        <itm.icon className="w-3.5 h-3.5 text-[#d4af37]/40" />
-                                        <span>{itm.text}</span>
-                                    </div>
-                                ))}
+                                <div className="flex items-start gap-4 p-4 grayscale opacity-40">
+                                    <Truck className="w-5 h-5 text-[#d4af37]" />
+                                    <p className="text-[0.55rem] tracking-widest uppercase leading-loose text-[#8a8070]">Expedited insured transit provided globally by Artisan Logistics.</p>
+                                </div>
+                                <div className="flex items-start gap-4 p-4 grayscale opacity-40">
+                                    <ShieldCheck className="w-5 h-5 text-[#d4af37]" />
+                                    <p className="text-[0.55rem] tracking-widest uppercase leading-loose text-[#8a8070]">Authenticity certification issued with every acquisition in this segment.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

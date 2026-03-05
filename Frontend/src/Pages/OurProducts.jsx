@@ -5,6 +5,7 @@ import { addToWishlist } from "../States/Wishlist/Action";
 import { addItemToCart } from "../States/Cart/Action";
 import { useNavigate } from "react-router-dom";
 import { Heart, Loader2, ShoppingCart } from "lucide-react";
+import { toast } from "react-toastify";
 
 const OurProduct = () => {
   const [search, setSearch] = useState("");
@@ -67,10 +68,12 @@ const OurProduct = () => {
 
   const handleWishlist = (productId) => {
     dispatch(addToWishlist(productId));
+    toast.success("Added to Wishlist!");
   };
 
   const handleAddToCart = (productId) => {
     dispatch(addItemToCart({ productId, quantity: 1 }));
+    toast.success("Added to Cart!");
   };
 
   return (

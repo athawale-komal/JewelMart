@@ -33,6 +33,12 @@ export default function ResetPassword() {
     const [showPw, setShowPw] = useState(false);
     const [showCPw, setShowCPw] = useState(false);
 
+    useEffect(() => {
+        if (error) {
+            toast.error(typeof error === "string" ? error : "Failed to reset password");
+        }
+    }, [error]);
+
     const strength = getStrength(form.newPassword);
 
     const handleSubmit = async (e) => {
@@ -133,6 +139,11 @@ export default function ResetPassword() {
                                         {showCPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
+                                {form.confirmPassword && (
+                                    <p className={`text-[0.62rem] mt-1.5 tracking-wider ${form.newPassword === form.confirmPassword ? "text-emerald-400" : "text-red-400"}`}>
+                                        {form.newPassword === form.confirmPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+                                    </p>
+                                )}
                             </div>
 
                             <button type="submit" disabled={loading}

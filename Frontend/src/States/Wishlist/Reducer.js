@@ -28,10 +28,7 @@ const wishlistReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                wishlist: {
-                    ...state.wishlist,
-                    products: state.wishlist.products.filter((p) => p._id !== action.payload)
-                },
+                wishlist: state.wishlist.filter((item) => item.product?._id !== action.payload),
                 error: null
             };
 

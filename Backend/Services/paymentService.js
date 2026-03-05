@@ -3,43 +3,43 @@ const razorpay = require("../config/PAYMENT.js");
 const OrderService = require("../Services/OrderService.js");
 
 const createPaymentLink = async (orderId) => {
-    const order = await OrderService.findOrderById(orderId);
+  const order = await OrderService.findOrderById(orderId);
 
-    if (!order) throw new Error("Order not found");
-    if (!order.user) throw new Error("User not found");
+  if (!order) throw new Error("Order not found");
+  if (!order.user) throw new Error("User not found");
 
-    const mobile =
-        order.user.mobile && String(order.user.mobile).length === 10
-            ? String(order.user.mobile)
-            : "9999999999";
+  const mobile =
+    order.user.mobile && String(order.user.mobile).length === 10
+      ? String(order.user.mobile)
+      : "9999999999";
 
-    const paymentLink = await razorpay.paymentLink.create({
-        amount: order.totalDiscountPrice * 100,
-        currency: "INR",
-        customer: {
-            name: `${order.user.firstName || "Customer"} ${order.user.lastName || ""}`,
-            email: order.user.email,
-            contact: mobile
-        },
-        notify: { sms: true, email: true },
-        reminder_enable: true,
-        callback_url: `http://localhost:8080/api/jwellmart/callback?orderId=${orderId}`,
-        callback_method: "get"
+  const paymentLink = await razorpay.paymentLink.create({
+    amount: order.totalDiscountPrice * 100,
+    currency: "INR",
+    customer: {
+      name: `${order.user.firstName || "Customer"} ${order.user.lastName || ""}`,
+      email: order.user.email,
+      contact: mobile
+    },
+    notify: { sms: true, email: true },
+    reminder_enable: true,
+    callback_url: `http://localhost:5173/payment-success?orderId=${orderId}`,
+    callback_method: "get"
 
-    });
+  });
 
-    await Payment.create({
-        orderId,
-        paymentLinkId: paymentLink.id,
-        amount: order.totalDiscountPrice,
-        status: "PENDING",
-        shortUrl: paymentLink.short_url
-    });
+  await Payment.create({
+    orderId,
+    paymentLinkId: paymentLink.id,
+    amount: order.totalDiscountPrice,
+    status: "PENDING",
+    shortUrl: paymentLink.short_url
+  });
 
-    return {
-        paymentLinkId: paymentLink.id,
-        paymentUrl: paymentLink.short_url
-    };
+  return {
+    paymentLinkId: paymentLink.id,
+    paymentUrl: paymentLink.short_url
+  };
 };
 
 const updatePaymentInformation = async (query) => {
@@ -84,6 +84,6 @@ const updatePaymentInformation = async (query) => {
 
 
 module.exports = {
-    createPaymentLink,
-    updatePaymentInformation
+  createPaymentLink,
+  updatePaymentInformation
 };

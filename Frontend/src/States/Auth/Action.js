@@ -9,6 +9,7 @@ import {
     GET_ALL_USERS_REQUEST, GET_ALL_USERS_SUCCESS, GET_ALL_USERS_FAILED,
     FORGOT_PASSWORD_REQUEST, FORGOT_PASSWORD_SUCCESS, FORGOT_PASSWORD_FAILED,
     RESET_PASSWORD_REQUEST, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_FAILED,
+    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILED,
 } from './Types';
 
 
@@ -155,6 +156,22 @@ export const resetPassword = (token, newPassword, confirmPassword) => async (dis
             error.response?.data?.error ||
             error.message;
         dispatch({ type: RESET_PASSWORD_FAILED, payload: message });
+    }
+};
+
+export const changePassword = (passwordData) => async (dispatch) => {
+    dispatch({ type: CHANGE_PASSWORD_REQUEST });
+    try {
+        const { data } = await api.put('/api/jewelmart/user/change-password', passwordData);
+        dispatch({ type: CHANGE_PASSWORD_SUCCESS, payload: data.message });
+        return { success: true, message: data.message };
+    } catch (error) {
+        const message =
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.message;
+        dispatch({ type: CHANGE_PASSWORD_FAILED, payload: message });
+        throw error;
     }
 };
 

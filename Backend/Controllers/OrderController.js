@@ -226,6 +226,39 @@ const deleteOrderItem = async (req, res) => {
   }
 };
 
+/* DELETE ORDER (USER) */
+const deleteUserOrder = async (req, res) => {
+  try {
+    const order = await OrderService.findOrderById(req.params.id);
+
+    if (order.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: "Unauthorized",
+      });
+    }
+
+    if (order.orderStatus !== "CANCELLED") {
+      return res.status(400).json({
+        success: false,
+        error: "Only cancelled orders can be deleted",
+      });
+    }
+
+    const result = await OrderService.deleteOrderById(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getUserOrders,
@@ -236,4 +269,5 @@ module.exports = {
   deleteOrder,
   getOrderItemHistory,
   deleteOrderItem,
+  deleteUserOrder,
 };
