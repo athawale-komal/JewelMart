@@ -184,6 +184,7 @@ export const restoreAuth = () => async (dispatch) => {
     
     dispatch({ type: LOGIN_USER_SUCCESS, payload: completeUser });
     
+  // eslint-disable-next-line no-unused-vars
   } catch (error) {
     localStorage.removeItem("jwt");
     dispatch({ type: LOGOUT_USER });

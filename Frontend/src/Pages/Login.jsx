@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -137,7 +138,7 @@ export default function Login() {
             style={{ border: "1px solid rgba(212,175,55,0.35)", boxShadow: "0 0 48px rgba(212,175,55,0.1), inset 0 0 24px rgba(212,175,55,0.05)" }}>
             <span className="-rotate-45 text-4xl select-none" style={{ color: "#d4af37", textShadow: "0 0 24px rgba(212,175,55,0.7)" }}>◆</span>
           </div>
-          <h1 className="text-5xl font-light tracking-[0.22em] mb-1" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#e8dfc8" }}>JEWELLMART</h1>
+          <h1 className="text-5xl font-light tracking-[0.22em] mb-1" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#e8dfc8" }}>JEWELMART</h1>
           <p className="text-[0.58rem] tracking-[0.5em] uppercase mb-6" style={{ color: "#d4af37" }}>Luxury · Curated · Timeless</p>
           <div className="w-8 h-px mx-auto mb-6" style={{ background: "rgba(212,175,55,0.35)" }} />
           <p className="text-xs leading-loose" style={{ color: "#6a6050", letterSpacing: "0.04em" }}>
@@ -310,6 +311,7 @@ export default function Login() {
           </p>
 
           <div className="flex items-center justify-center gap-6 mt-8 pt-6 border-t border-[rgba(212,175,55,0.08)]">
+            {/* // eslint-disable-next-line no-unused-vars, no-unused-vars */}
             {[{ icon: Shield, label: "SSL Secure" }, { icon: Gem, label: "Authentic" }, { icon: Lock, label: "Private" }].map(({ icon: Icon, label }) => (
               <span key={label} className="flex items-center gap-1.5 text-[0.58rem] tracking-widest uppercase" style={{ color: "#3a3528" }}>
                 <Icon className="w-3 h-3" style={{ color: "rgba(212,175,55,0.35)" }} />{label}
