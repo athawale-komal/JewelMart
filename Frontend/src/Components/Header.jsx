@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Menu, X, ShoppingCart, Search, User, ChevronDown,
   Gem, Sparkles, LogIn, LogOut, Package, Heart, Settings
 } from 'lucide-react';
+ 
 import { products } from '../Data/Product';
 import { logoutUser } from '../States/Auth/Action';
 import { useDispatch, useSelector } from 'react-redux';
@@ -154,7 +156,7 @@ export default function Header() {
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-80 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3 z-[60]">
+                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-80 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3 z-60">
                   <div className="relative">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                     <input autoFocus value={searchVal} onChange={e => setSearchVal(e.target.value)}
