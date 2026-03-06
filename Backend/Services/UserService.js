@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const PASSWORD_REGEX =
     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
-const generateResetToken = () =>crypto.randomBytes(20).toString('hex');
+const generateResetToken = () => crypto.randomBytes(20).toString('hex');
 
 /* -------------------- CREATE USER -------------------- */
 
@@ -78,7 +78,7 @@ const getUserProfile = async (token) => {
 
 const updateUserProfile = async (userId, updateData) => {
 
-    const allowedFields = ['name', 'surname', 'mobile', 'photo', 'email'];
+    const allowedFields = ['name', 'surname', 'mobile', 'photo', 'email', 'address', 'city', 'state', 'pincode'];
     const updates = {};
 
     allowedFields.forEach((field) => {
@@ -105,7 +105,7 @@ const setResetPasswordToken = async (email) => {
     const resetToken = generateResetToken();
 
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; 
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
     await user.save();
 
     return resetToken;
@@ -125,7 +125,7 @@ const resetPassword = async (token, newPassword, confirmPassword) => {
     }
 
     if (newPassword !== confirmPassword) {
-        throw new Error('Passwords do not match');
+        throw new Error('Passwords do not match.');
     }
 
     if (!PASSWORD_REGEX.test(newPassword)) {
@@ -142,9 +142,44 @@ const resetPassword = async (token, newPassword, confirmPassword) => {
     return true;
 };
 
+/* -------------------- CHANGE PASSWORD -------------------- */
+
+const changePassword = async (userId, oldPassword, newPassword) => {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+        throw new Error('Invalid old password');
+    }
+
+    if (!PASSWORD_REGEX.test(newPassword)) {
+        throw new Error(
+            'Password must have at least 8 chars, one uppercase, one number, and one symbol'
+        );
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    return true;
+};
 
 
+const deleteUser = async (userId) => {
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) throw new Error('User not found');
+    return user;
+};
 
-
-
-module.exports = { setResetPasswordToken, resetPassword, createUser, getAllUsers, findUserByEmail, findUserById, getUserProfile, updateUserProfile };
+module.exports = {
+    setResetPasswordToken,
+    resetPassword,
+    createUser,
+    getAllUsers,
+    findUserByEmail,
+    findUserById,
+    getUserProfile,
+    updateUserProfile,
+    changePassword,
+    deleteUser
+};

@@ -8,23 +8,32 @@ import { products } from '../Data/Product';
 import { logoutUser } from '../States/Auth/Action';
 import { useDispatch, useSelector } from 'react-redux';
 
-const CATEGORIES = [...new Set(products.map(p => p.category))];
 
-export default function Header({ cartCount = 0 }) {
-  const dispatch   = useDispatch();
-  const navigate   = useNavigate();
+
+export default function Header() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user, jwt } = useSelector(s => s.auth);
-  const isLoggedIn = !!jwt && !!user;
-  const [mobileOpen,   setMobileOpen]   = useState(false);
-  const [catOpen,      setCatOpen]      = useState(false);
-  const [profileOpen,  setProfileOpen]  = useState(false);
-  const [searchOpen,   setSearchOpen]   = useState(false);
-  const [searchVal,    setSearchVal]    = useState('');
-  const [scrolled,     setScrolled]     = useState(false);
+  const { cartItems } = useSelector(s => s.cart);
+  const { wishlist } = useSelector(s => s.wishlist);
+  const { products: allProducts } = useSelector(s => s.product);
 
-  const catTimer     = useRef(null);
+  const cartCount = cartItems?.length || 0;
+  const wishlistCount = wishlist?.length || 0;
+
+  // Dynamic categories from allProducts
+  const CATEGORIES = [...new Set(allProducts?.map(p => p.category))].filter(Boolean);
+  const isLoggedIn = !!jwt && !!user;
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchVal, setSearchVal] = useState('');
+  const [scrolled, setScrolled] = useState(false);
+
+  const catTimer = useRef(null);
   const profileTimer = useRef(null);
-  const searchRef    = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -40,10 +49,10 @@ export default function Header({ cartCount = 0 }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const openCat  = () => { clearTimeout(catTimer.current);     setCatOpen(true); };
-  const closeCat = () => { catTimer.current = setTimeout(()  => setCatOpen(false), 120); };
+  const openCat = () => { clearTimeout(catTimer.current); setCatOpen(true); };
+  const closeCat = () => { catTimer.current = setTimeout(() => setCatOpen(false), 120); };
 
-  const openProf  = () => { clearTimeout(profileTimer.current);    setProfileOpen(true); };
+  const openProf = () => { clearTimeout(profileTimer.current); setProfileOpen(true); };
   const closeProf = () => { profileTimer.current = setTimeout(() => setProfileOpen(false), 120); };
 
   const handleLogout = () => {
@@ -61,27 +70,24 @@ export default function Header({ cartCount = 0 }) {
 
   return (
     <>
-  
-      <header className={` fixed top-0 z-50 w-full transition-all duration-400 ${
-        scrolled
-          ? 'bg-white/98 backdrop-blur-xl shadow-[0_2px_24px_rgba(0,0,0,0.08)] border-b border-stone-100'
-          : 'bg-linear-to-b from-black/40 to-transparent'
-      }`}>
+
+      <header className={` fixed top-0 z-50 w-full transition-all duration-400 ${scrolled
+        ? 'bg-white/98 backdrop-blur-xl shadow-[0_2px_24px_rgba(0,0,0,0.08)] border-b border-stone-100'
+        : 'bg-linear-to-b from-black/40 to-transparent'
+        }`}>
 
         <div className="max-w-350 mx-auto flex items-center justify-between px-5 sm:px-8 lg:px-12 h-17">
 
           {/* ── LOGO ────────────────────────────────────────────────────── */}
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
-              scrolled
-                ? 'bg-amber-700 group-hover:bg-amber-800 shadow-md'
-                : 'bg-white/15 backdrop-blur-sm border border-white/30 group-hover:bg-white/25'
-            }`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${scrolled
+              ? 'bg-amber-700 group-hover:bg-amber-800 shadow-md'
+              : 'bg-white/15 backdrop-blur-sm border border-white/30 group-hover:bg-white/25'
+              }`}>
               <Gem className={`w-4.5 h-4.5 transition-colors duration-300 ${scrolled ? 'text-white' : 'text-amber-300'}`} size={18} />
             </div>
-            <span className={`hdr-logo text-[1.45rem] font-semibold tracking-wide transition-colors duration-300 ${
-              scrolled ? 'text-stone-800' : 'text-white drop-shadow-sm'
-            }`}>
+            <span className={`hdr-logo text-[1.45rem] font-semibold tracking-wide transition-colors duration-300 ${scrolled ? 'text-stone-800' : 'text-white drop-shadow-sm'
+              }`}>
               Jewel<span className={scrolled ? 'text-amber-700' : 'text-amber-300'}>Mart</span>
             </span>
           </Link>
@@ -97,7 +103,7 @@ export default function Header({ cartCount = 0 }) {
               </button>
 
               {catOpen && (
-                <div className="dropdown-enter absolute top-[calc(100%+6px)] left-0 w-52 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 overflow-hidden"
+                <div className="dropdown-enter absolute top-[calc(100%+6px)] left-0 w-52 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 overflow-hidden z-50 transition-all duration-300 transform origin-top"
                   onMouseEnter={openCat} onMouseLeave={closeCat}>
                   <div className="px-4 pt-3 pb-1.5">
                     <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-stone-400">Explore</p>
@@ -121,15 +127,14 @@ export default function Header({ cartCount = 0 }) {
             </div>
 
             <Link to="/products" className={`${base} ${navCls}`}>Products</Link>
-            <Link to="/about"    className={`${base} ${navCls}`}>About</Link>
-            <Link to="/contact"  className={`${base} ${navCls}`}>Contact</Link>
+            <Link to="/about" className={`${base} ${navCls}`}>About</Link>
+            <Link to="/contact" className={`${base} ${navCls}`}>Contact</Link>
 
             <Link to="/ai-stylist"
-              className={`${base} flex items-center gap-1.5 ml-1 font-semibold transition-all duration-200 hover:scale-[1.03] ${
-                scrolled
-                  ? 'text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 hover:border-amber-300'
-                  : 'text-white bg-white/15 border border-white/25 hover:bg-white/25 backdrop-blur-sm'
-              }`}>
+              className={`${base} flex items-center gap-1.5 ml-1 font-semibold transition-all duration-200 hover:scale-[1.03] ${scrolled
+                ? 'text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 hover:border-amber-300'
+                : 'text-white bg-white/15 border border-white/25 hover:bg-white/25 backdrop-blur-sm'
+                }`}>
               <Sparkles size={13} />
               AI Stylist
             </Link>
@@ -142,31 +147,83 @@ export default function Header({ cartCount = 0 }) {
             <div ref={searchRef} className="relative hidden md:block">
               <button
                 onClick={() => setSearchOpen(v => !v)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                  scrolled
-                    ? 'text-stone-600 hover:bg-stone-100 hover:text-amber-700'
-                    : 'text-white/80 hover:text-white hover:bg-white/15'
-                }`}>
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${scrolled
+                  ? 'text-stone-600 hover:bg-stone-100 hover:text-amber-700'
+                  : 'text-white/80 hover:text-white hover:bg-white/15'
+                  }`}>
                 <Search size={18} />
               </button>
               {searchOpen && (
-                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-72 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3">
+                <div className="dropdown-enter absolute right-0 top-[calc(100%+8px)] w-80 bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.14)] border border-stone-100 p-3 z-[60]">
                   <div className="relative">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                     <input autoFocus value={searchVal} onChange={e => setSearchVal(e.target.value)}
                       placeholder="Search jewellery…"
                       className="search-glow w-full pl-9 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-amber-300 transition-all text-stone-800 placeholder-stone-400" />
                   </div>
+
+                  {/* Search Suggestions */}
+                  {searchVal.trim().length > 0 && (
+                    <div className="mt-3 max-h-96 overflow-y-auto space-y-1 custom-scrollbar">
+                      {allProducts?.filter(p =>
+                        p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                        p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                      ).slice(0, 6).map(product => (
+                        <div
+                          key={product._id}
+                          onClick={() => {
+                            navigate(`/product/${product._id}`);
+                            setSearchOpen(false);
+                            setSearchVal('');
+                          }}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-amber-50 cursor-pointer group transition-colors"
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                            <img src={product.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[0.82rem] font-bold text-stone-800 truncate group-hover:text-amber-700 transition-colors">
+                              {product.title}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[0.65rem] font-bold text-amber-600 uppercase tracking-tight">{product.category}</p>
+                              <span className="text-stone-300 text-[0.6rem]">•</span>
+                              <p className="text-[0.75rem] font-bold text-stone-900">₹{product.discountedPrice?.toLocaleString() || product.price?.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <ChevronDown size={12} className="-rotate-90 text-stone-300 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" />
+                        </div>
+                      ))}
+                      {allProducts?.filter(p =>
+                        p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                        p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                      ).length === 0 && (
+                          <p className="text-center py-4 text-stone-400 text-[0.8rem]">No products found</p>
+                        )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
+            {/* Wishlist Icon */}
+            <Link to="/wishlist" className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${scrolled
+              ? 'text-stone-600 hover:bg-stone-100 hover:text-rose-600'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
+              }`}>
+              <Heart size={19} className={wishlistCount > 0 ? "fill-rose-500 text-rose-500" : ""} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full border border-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
             {/* Cart */}
-            <Link to="/cart" className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${
-              scrolled
-                ? 'text-stone-600 hover:bg-stone-100 hover:text-amber-700'
-                : 'text-white/80 hover:text-white hover:bg-white/15'
-            }`}>
+            <Link to="/cart" className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 ${scrolled
+              ? 'text-stone-600 hover:bg-stone-100 hover:text-amber-700'
+              : 'text-white/80 hover:text-white hover:bg-white/15'
+              }`}>
               <ShoppingCart size={19} />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[9px] font-bold w-4.5 h-4.5 flex items-center justify-center rounded-full border border-white shadow-sm">
@@ -180,11 +237,10 @@ export default function Header({ cartCount = 0 }) {
               <div className="relative hidden sm:block" onMouseEnter={openProf} onMouseLeave={closeProf}>
                 <button className="flex items-center gap-1.5 group focus:outline-none">
                   {/* Avatar */}
-                  <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center transition-all duration-200 group-hover:scale-105 ${
-                    scrolled
-                      ? 'border-2 border-stone-200 bg-stone-100 group-hover:border-amber-300'
-                      : 'border-2 border-white/40 bg-white/15 group-hover:border-white/70'
-                  }`}>
+                  <div className={`w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center transition-all duration-200 group-hover:scale-105 ${scrolled
+                    ? 'border-2 border-stone-200 bg-stone-100 group-hover:border-amber-300'
+                    : 'border-2 border-white/40 bg-white/15 group-hover:border-white/70'
+                    }`}>
                     {user?.photo ? (
                       <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
                     ) : (
@@ -216,9 +272,9 @@ export default function Header({ cartCount = 0 }) {
 
                     <div className="py-1.5">
                       {[
-                        { to: '/profile',  icon: User,    label: 'My Profile' },
-                        { to: '/orders',   icon: Package, label: 'My Orders'  },
-                        { to: '/wishlist', icon: Heart,   label: 'Wishlist'   },
+                        { to: '/profile', icon: User, label: 'My Profile' },
+                        { to: '/orders', icon: Package, label: 'My Orders' },
+                        { to: '/wishlist', icon: Heart, label: 'Wishlist' },
                       ].map(({ to, icon: Icon, label }) => (
                         <Link key={to} to={to} onClick={() => setProfileOpen(false)}
                           className="group/mi flex items-center gap-3 px-4 py-2.5 text-[0.82rem] font-medium text-stone-700 hover:bg-amber-50 hover:text-amber-700 transition-colors duration-150">
@@ -239,11 +295,10 @@ export default function Header({ cartCount = 0 }) {
               </div>
             ) : (
               <button onClick={() => navigate('/auth')}
-                className={`hidden sm:flex items-center gap-1.5 text-[0.8rem] font-semibold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] ${
-                  scrolled
-                    ? 'text-stone-700 border border-stone-200 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200'
-                    : 'text-white border border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm'
-                }`}>
+                className={`hidden sm:flex items-center gap-1.5 text-[0.8rem] font-semibold px-4 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] ${scrolled
+                  ? 'text-stone-700 border border-stone-200 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200'
+                  : 'text-white border border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm'
+                  }`}>
                 <LogIn size={15} />
                 Sign In
               </button>
@@ -252,11 +307,10 @@ export default function Header({ cartCount = 0 }) {
             {/* Mobile burger */}
             <button
               onClick={() => setMobileOpen(v => !v)}
-              className={`lg:hidden w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                scrolled
-                  ? 'text-stone-700 hover:bg-stone-100'
-                  : 'text-white hover:bg-white/15'
-              }`}>
+              className={`lg:hidden w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${scrolled
+                ? 'text-stone-700 hover:bg-stone-100'
+                : 'text-white hover:bg-white/15'
+                }`}>
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
@@ -270,16 +324,43 @@ export default function Header({ cartCount = 0 }) {
               {/* Mobile search */}
               <div className="relative mb-3">
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
-                <input placeholder="Search jewellery…"
+                <input placeholder="Search jewellery…" value={searchVal} onChange={e => setSearchVal(e.target.value)}
                   className="w-full pl-9 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-amber-300 transition-all" />
+
+                {searchVal.trim().length > 0 && (
+                  <div className="mt-2 bg-white rounded-xl border border-stone-100 shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                    {allProducts?.filter(p =>
+                      p.title?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                      p.category?.toLowerCase().includes(searchVal.toLowerCase())
+                    ).slice(0, 5).map(product => (
+                      <div
+                        key={product._id}
+                        onClick={() => {
+                          navigate(`/product/${product._id}`);
+                          setMobileOpen(false);
+                          setSearchVal('');
+                        }}
+                        className="flex items-center gap-3 p-3 active:bg-amber-50 border-b border-stone-50 last:border-0"
+                      >
+                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                          <img src={product.images?.[0]} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[0.8rem] font-bold text-stone-800 truncate">{product.title}</p>
+                          <p className="text-[0.7rem] text-amber-600 font-bold">₹{product.discountedPrice?.toLocaleString() || product.price?.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Nav links */}
               {[
-                { to: '/',          label: 'Home'      },
-                { to: '/products',  label: 'Products'  },
-                { to: '/about',     label: 'About'     },
-                { to: '/contact',   label: 'Contact'   },
+                { to: '/', label: 'Home' },
+                { to: '/products', label: 'Products' },
+                { to: '/about', label: 'About' },
+                { to: '/contact', label: 'Contact' },
               ].map(({ to, label }) => (
                 <Link key={to} to={to} onClick={() => setMobileOpen(false)}
                   className="block px-4 py-2.5 rounded-xl text-[0.85rem] font-medium text-stone-700 hover:bg-amber-50 hover:text-amber-700 transition-colors">
@@ -319,9 +400,9 @@ export default function Header({ cartCount = 0 }) {
                       </div>
                     </div>
                     {[
-                      { to: '/profile',  icon: User,    label: 'My Profile' },
-                      { to: '/orders',   icon: Package, label: 'My Orders'  },
-                      { to: '/wishlist', icon: Heart,   label: 'Wishlist'   },
+                      { to: '/profile', icon: User, label: 'My Profile' },
+                      { to: '/orders', icon: Package, label: 'My Orders' },
+                      { to: '/wishlist', icon: Heart, label: 'Wishlist' },
                     ].map(({ to, icon: Icon, label }) => (
                       <Link key={to} to={to} onClick={() => setMobileOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-[0.83rem] font-medium text-stone-700 hover:bg-amber-50 hover:text-amber-700 transition-colors">

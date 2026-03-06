@@ -1,22 +1,23 @@
 import {
     REGISTER_USER_REQUEST, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
-    LOGIN_USER_REQUEST,    LOGIN_USER_SUCCESS,    LOGIN_USER_FAILED,
+    LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILED,
     LOGOUT_USER,
-    GET_USER_PROFILE_REQUEST,    GET_USER_PROFILE_SUCCESS,    GET_USER_PROFILE_FAILED,
+    GET_USER_PROFILE_REQUEST, GET_USER_PROFILE_SUCCESS, GET_USER_PROFILE_FAILED,
     UPDATE_USER_PROFILE_REQUEST, UPDATE_USER_PROFILE_SUCCESS, UPDATE_USER_PROFILE_FAILED,
-    GET_ALL_USERS_REQUEST,        GET_ALL_USERS_SUCCESS,        GET_ALL_USERS_FAILED,
-    FORGOT_PASSWORD_REQUEST,     FORGOT_PASSWORD_SUCCESS,     FORGOT_PASSWORD_FAILED,
-    RESET_PASSWORD_REQUEST,      RESET_PASSWORD_SUCCESS,      RESET_PASSWORD_FAILED,
+    GET_ALL_USERS_REQUEST, GET_ALL_USERS_SUCCESS, GET_ALL_USERS_FAILED,
+    FORGOT_PASSWORD_REQUEST, FORGOT_PASSWORD_SUCCESS, FORGOT_PASSWORD_FAILED,
+    RESET_PASSWORD_REQUEST, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_FAILED,
+    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILED,
 } from './Types';
 
 const initialState = {
-    user:    null,
-    users:   [],     
-    jwt:     localStorage.getItem('jwt') || null,
+    user: null,
+    users: [],
+    jwt: localStorage.getItem('jwt') || null,
     loading: false,
-    error:   null,
+    error: null,
     forgotPasswordMessage: null,
-    resetPasswordMessage:  null,
+    resetPasswordMessage: null,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -26,14 +27,14 @@ const authReducer = (state = initialState, action) => {
         case REGISTER_USER_REQUEST:
             return { ...state, loading: true, error: null };
 
-       case REGISTER_USER_SUCCESS:
-  return {
-    ...state,
-    loading: false,
-    user: action.payload.user,
-    jwt: action.payload.jwt,
-    error: null,
-  };
+        case REGISTER_USER_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                user: action.payload.user,
+                jwt: action.payload.jwt,
+                error: null,
+            };
 
         case REGISTER_USER_FAILED:
             return { ...state, loading: false, error: action.payload };
@@ -106,6 +107,16 @@ const authReducer = (state = initialState, action) => {
             return { ...state, loading: false, resetPasswordMessage: action.payload };
 
         case RESET_PASSWORD_FAILED:
+            return { ...state, loading: false, error: action.payload };
+
+        /* -------- CHANGE PASSWORD -------- */
+        case CHANGE_PASSWORD_REQUEST:
+            return { ...state, loading: true, error: null };
+
+        case CHANGE_PASSWORD_SUCCESS:
+            return { ...state, loading: false, error: null };
+
+        case CHANGE_PASSWORD_FAILED:
             return { ...state, loading: false, error: action.payload };
 
         default:

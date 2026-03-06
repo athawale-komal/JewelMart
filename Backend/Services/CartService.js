@@ -1,5 +1,5 @@
 const Cart = require("../models/Cart");
-const Product = require ('../models/Product')
+const Product = require('../models/Product')
 const CartItem = require('../models/CartItems')
 
 
@@ -148,10 +148,19 @@ const removeCartItem = async (userId, cartItemId) => {
   return { message: "Item removed from cart" };
 };
 
+/* CLEAR CART */
+const clearCart = async (userId) => {
+  const cart = await createCart(userId);
+  await CartItem.deleteMany({ cart: cart._id });
+  await updateCartTotals(cart._id);
+  return { message: "Cart cleared" };
+};
+
 module.exports = {
-    createCart, updateCartTotals,
-    removeCartItem,
-    updateCartItemQuantity,
-    addCartItem,
-    findUserCart,
+  createCart, updateCartTotals,
+  removeCartItem,
+  updateCartItemQuantity,
+  addCartItem,
+  findUserCart,
+  clearCart,
 }

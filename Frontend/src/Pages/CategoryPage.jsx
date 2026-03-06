@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { products } from '../Data/Product';
-import { ArrowRight, Filter, SlidersHorizontal, Grid, List, Star, ShoppingCart, Sparkles } from 'lucide-react';
-
+import { ArrowRight, Filter, SlidersHorizontal, Grid, List, Star, ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import ProductCard from '../Components/Product/ProductCard';
+import { findProducts } from '../States/Products/Action';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'
 const CategoryPage = () => {
   const { category } = useParams();
   const navigate = useNavigate();
-  
+
+  const { products: allProducts, loading } = useSelector(state => state.product);
+
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortBy, setSortBy] = useState('featured');
   const [viewMode, setViewMode] = useState('grid');
@@ -18,12 +22,18 @@ const CategoryPage = () => {
   const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
 
   // Get unique purities from products
-  const purities = [...new Set(products.map(p => p.purity))].filter(Boolean);
+  // Get unique purities from products
+  const purities = [...new Set(allProducts?.map(p => p.purity))].filter(Boolean);
 
   useEffect(() => {
-    // Filter products by category
-    let filtered = products.filter(
-      p => p.category.toLowerCase() === category.toLowerCase()
+    if (!allProducts || allProducts.length === 0) {
+      dispatch(findProducts({}));
+      return;
+    }
+
+    // Filter products by category (case-insensitive)
+    let filtered = allProducts.filter(
+      p => p.category?.toLowerCase() === category?.toLowerCase()
     );
 
     // Apply purity filter
@@ -59,107 +69,7 @@ const CategoryPage = () => {
     setFilteredProducts(filtered);
   }, [category, sortBy, priceRange, selectedPurity]);
 
-  const handleAddToCart = (product) => {
-    // Get existing cart from localStorage
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    // Check if product already exists in cart
-    const existingItem = existingCart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // Increase quantity
-      existingItem.quantity += 1;
-    } else {
-      // Add new item
-      existingCart.push({ ...product, quantity: 1 });
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('cart', JSON.stringify(existingCart));
-    
-    // Show success message (you can replace this with a toast notification)
-    alert(`${product.name} added to cart!`);
-  };
 
-  const ProductCard = ({ product }) => (
-    <div className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100">
-      <div className="relative overflow-hidden bg-linear-to-br from-slate-50 via-white to-amber-50 h-72">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-        />
-        
-        <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-          <div className="bg-linear-to-r from-amber-500 to-yellow-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-            {product.purity}
-          </div>
-          {product.discount > 0 && (
-            <div className="bg-linear-to-r from-rose-500 to-pink-600 text-white px-3 py-1.5 rounded-full text-xs font-bold animate-pulse">
-              {product.discount}% OFF
-            </div>
-          )}
-        </div>
-
-        {product.stock < 5 && (
-          <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold animate-pulse">
-            Only {product.stock} Left
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <button
-            onClick={() => navigate(`/products/${product.id}`)}
-            className="bg-white text-gray-900 px-6 py-3 rounded-full font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
-          >
-            Quick View
-          </button>
-        </div>
-      </div>
-
-      <div className="p-6">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
-            {product.category}
-          </span>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-semibold text-gray-700">{product.rating}</span>
-          </div>
-        </div>
-
-        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-amber-600 transition-colors">
-          {product.name}
-        </h3>
-
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-2xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-            ₹{(product.price - (product.price * product.discount / 100)).toLocaleString('en-IN')}
-          </span>
-          {product.discount > 0 && (
-            <span className="text-sm text-gray-400 line-through">
-              ₹{product.price.toLocaleString('en-IN')}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between text-xs text-gray-600 mb-5 pb-5 border-b border-gray-100">
-          <span className="font-medium">{product.metalType}</span>
-          <span className="font-medium">{product.weight}g</span>
-        </div>
-
-        <button
-          onClick={() => handleAddToCart(product)}
-          className="w-full bg-linear-to-r from-amber-500 to-yellow-600 text-white py-3.5 rounded-xl font-bold hover:from-amber-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl flex items-center justify-center gap-2"
-        >
-          Add to Cart
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-linear-to-b from-white via-amber-50/30 to-white pt-24">
@@ -232,21 +142,19 @@ const CategoryPage = () => {
             <div className="hidden sm:flex items-center gap-2 bg-white border border-stone-200 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-amber-500 text-white'
-                    : 'text-gray-600 hover:bg-stone-50'
-                }`}
+                className={`p-2 rounded transition-all ${viewMode === 'grid'
+                  ? 'bg-amber-500 text-white'
+                  : 'text-gray-600 hover:bg-stone-50'
+                  }`}
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-amber-500 text-white'
-                    : 'text-gray-600 hover:bg-stone-50'
-                }`}
+                className={`p-2 rounded transition-all ${viewMode === 'list'
+                  ? 'bg-amber-500 text-white'
+                  : 'text-gray-600 hover:bg-stone-50'
+                  }`}
               >
                 <List className="w-4 h-4" />
               </button>
@@ -256,9 +164,8 @@ const CategoryPage = () => {
 
         <div className="flex gap-8">
           {/* Filters Sidebar */}
-          <aside className={`${
-            showFilters ? 'block' : 'hidden'
-          } lg:block w-full lg:w-64 shrink-0`}>
+          <aside className={`${showFilters ? 'block' : 'hidden'
+            } lg:block w-full lg:w-64 shrink-0`}>
             <div className="bg-white rounded-2xl shadow-md p-6 sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Filter className="w-5 h-5 text-amber-600" />
@@ -335,28 +242,58 @@ const CategoryPage = () => {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {filteredProducts.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20">
                 <ShoppingCart className="w-20 h-20 text-gray-300 mx-auto mb-6" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">No Products Found</h2>
                 <p className="text-gray-600 mb-8">
                   Try adjusting your filters or browse other categories
                 </p>
-                <a
-                  href="/products"
+                <Link
+                  to="/products"
                   className="inline-flex items-center gap-2 bg-linear-to-r from-amber-500 to-yellow-600 text-white px-6 py-3 rounded-lg font-bold hover:from-amber-600 hover:to-yellow-700 transition-all"
                 >
                   View All Products
-                </a>
+                </Link>
               </div>
             ) : (
-              <div className={`grid ${
-                viewMode === 'grid'
-                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
-                  : 'grid-cols-1'
-              } gap-6`}>
+              <div className={`grid ${viewMode === 'grid'
+                ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                : 'grid-cols-1'
+                } gap-6`}>
                 {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <div key={product._id} className={viewMode === 'list' ? 'w-full' : ''}>
+                    {viewMode === 'grid' ? (
+                      <ProductCard product={product} />
+                    ) : (
+                      <div className="group bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden transition-all duration-300 hover:shadow-2xl flex flex-row">
+                        {/* Reuse the list view logic from OurProducts or simplify */}
+                        <div className="w-64 shrink-0 relative overflow-hidden">
+                          <img
+                            src={product.images?.[0]}
+                            alt={product.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onClick={() => navigate(`/product/${product._id}`)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </div>
+                        <div className="p-6 flex-1 flex flex-col">
+                          <h3 onClick={() => navigate(`/product/${product._id}`)} className="text-xl font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors cursor-pointer">
+                            {product.title}
+                          </h3>
+                          <p className="text-sm text-slate-600 mb-4 line-clamp-2 truncate">{product.description}</p>
+                          <div className="flex items-baseline gap-3 mb-4">
+                            <span className="text-3xl font-bold text-slate-900">₹{product.discountedPrice?.toLocaleString() || product.price?.toLocaleString()}</span>
+                          </div>
+                          <button className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-600 transition-all w-fit">Add to Cart</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             )}

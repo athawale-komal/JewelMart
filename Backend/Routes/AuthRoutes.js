@@ -12,7 +12,9 @@ router.post('/auth/login', AuthController.login);
 router.post('/auth/forgot-password', AuthController.forgotPassword);
 router.post('/auth/reset-password', AuthController.resetPassword);
 router.get('/user/users', Authenticate, admin('ADMIN'), AuthController.getAllUsers);
+router.delete('/user/delete/:id', Authenticate, admin('ADMIN'), AuthController.deleteUser);
 router.get('/user/profile', Authenticate, AuthController.getUserProfile);
-router.put('/user/update', Authenticate, AuthController.updateProfile);
+router.put('/user/update', Authenticate, upload.single('photo'), AuthController.updateProfile);
+router.put('/user/change-password', Authenticate, AuthController.changePassword);
 
 module.exports = router;

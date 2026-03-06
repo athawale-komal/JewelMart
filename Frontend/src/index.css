@@ -1,8 +1,74 @@
 @import "tailwindcss";
+
 .dropdown-link {
   @apply block px-4 py-2 text-gray-700 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition;
 }
 
 .mobile-link {
   @apply block px-4 py-2 rounded-lg text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition;
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-enter {
+  animation: dropdownEnter 0.25s ease-out forwards;
+}
+
+@keyframes searchGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.2);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(217, 119, 6, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+  }
+}
+
+.search-glow:focus {
+  animation: searchGlow 2s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }

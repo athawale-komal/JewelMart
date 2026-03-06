@@ -30,6 +30,18 @@ const userSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
+  address: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+  pincode: {
+    type: String,
+  },
   wishlist: [
     {
       productId: {

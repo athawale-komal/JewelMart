@@ -2,13 +2,14 @@
 import api from '../../config/apiConfig';
 import {
     REGISTER_USER_REQUEST, REGISTER_USER_SUCCESS, REGISTER_USER_FAILED,
-    LOGIN_USER_REQUEST,    LOGIN_USER_SUCCESS,    LOGIN_USER_FAILED,
+    LOGIN_USER_REQUEST, LOGIN_USER_SUCCESS, LOGIN_USER_FAILED,
     LOGOUT_USER,
-    GET_USER_PROFILE_REQUEST,    GET_USER_PROFILE_SUCCESS,    GET_USER_PROFILE_FAILED,
+    GET_USER_PROFILE_REQUEST, GET_USER_PROFILE_SUCCESS, GET_USER_PROFILE_FAILED,
     UPDATE_USER_PROFILE_REQUEST, UPDATE_USER_PROFILE_SUCCESS, UPDATE_USER_PROFILE_FAILED,
-    GET_ALL_USERS_REQUEST,        GET_ALL_USERS_SUCCESS,        GET_ALL_USERS_FAILED,
-    FORGOT_PASSWORD_REQUEST,     FORGOT_PASSWORD_SUCCESS,     FORGOT_PASSWORD_FAILED,
-    RESET_PASSWORD_REQUEST,      RESET_PASSWORD_SUCCESS,      RESET_PASSWORD_FAILED,
+    GET_ALL_USERS_REQUEST, GET_ALL_USERS_SUCCESS, GET_ALL_USERS_FAILED,
+    FORGOT_PASSWORD_REQUEST, FORGOT_PASSWORD_SUCCESS, FORGOT_PASSWORD_FAILED,
+    RESET_PASSWORD_REQUEST, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_FAILED,
+    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILED,
 } from './Types';
 
 
@@ -27,13 +28,13 @@ export const registerUser = (formData) => async (dispatch) => {
             localStorage.setItem('jwt', data.jwt);
         }
 
-       dispatch({
-  type: REGISTER_USER_SUCCESS,
-  payload: {
-    user: data.user,
-    jwt: data.jwt
-  }
-});
+        dispatch({
+            type: REGISTER_USER_SUCCESS,
+            payload: {
+                user: data.user,
+                jwt: data.jwt
+            }
+        });
     } catch (error) {
         const message =
             error.response?.data?.message ||
@@ -90,15 +91,15 @@ export const updateUserProfile = (updateData) => async (dispatch) => {
     try {
         // Check if updateData is FormData
         const isFormData = updateData instanceof FormData;
-        
+
         const { data } = await api.put('/api/jewelmart/user/update', updateData, {
-            headers: isFormData 
+            headers: isFormData
                 ? { 'Content-Type': 'multipart/form-data' }
                 : { 'Content-Type': 'application/json' },
         });
-        
-        dispatch({ type: UPDATE_USER_PROFILE_SUCCESS, payload: data });
-        return { success: true, data };
+
+        dispatch({ type: UPDATE_USER_PROFILE_SUCCESS, payload: data.user });
+        return { success: true, data: data.user };
     } catch (error) {
         const message =
             error.response?.data?.message ||
@@ -158,17 +159,53 @@ export const resetPassword = (token, newPassword, confirmPassword) => async (dis
     }
 };
 
+export const changePassword = (passwordData) => async (dispatch) => {
+    dispatch({ type: CHANGE_PASSWORD_REQUEST });
+    try {
+        const { data } = await api.put('/api/jewelmart/user/change-password', passwordData);
+        dispatch({ type: CHANGE_PASSWORD_SUCCESS, payload: data.message });
+        return { success: true, message: data.message };
+    } catch (error) {
+        const message =
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.message;
+        dispatch({ type: CHANGE_PASSWORD_FAILED, payload: message });
+        throw error;
+    }
+};
+
 
 export const restoreAuth = () => async (dispatch) => {
-  dispatch({ type: LOGIN_USER_REQUEST });
-  
-  try {
-    const jwt = localStorage.getItem("jwt");
-    
-    if (!jwt) {
-      dispatch({ type: LOGIN_USER_FAILED, payload: 'No saved session' });
-      return;
+    dispatch({ type: LOGIN_USER_REQUEST });
+
+    try {
+        const jwt = localStorage.getItem("jwt");
+
+        if (!jwt) {
+            dispatch({ type: LOGIN_USER_FAILED, payload: 'No saved session' });
+            return;
+        }
+
+        const response = await api.get('/api/jewelmart/user/profile', {
+            headers: { Authorization: `Bearer ${jwt}` },
+        });
+
+        const userData = response.data;
+
+        const completeUser = {
+            jwt: jwt,
+            message: 'Session restored',
+            ...userData
+        };
+
+        dispatch({ type: LOGIN_USER_SUCCESS, payload: completeUser });
+
+    } catch (error) {
+        localStorage.removeItem("jwt");
+        dispatch({ type: LOGOUT_USER });
     }
+<<<<<<< HEAD
     
     const response = await api.get('/api/jewelmart/user/profile', {
       headers: { Authorization: `Bearer ${jwt}` },
@@ -189,4 +226,6 @@ export const restoreAuth = () => async (dispatch) => {
     localStorage.removeItem("jwt");
     dispatch({ type: LOGOUT_USER });
   }
+=======
+>>>>>>> 14f841b8b9ba3920c144e194f36d2231d59a6b06
 };

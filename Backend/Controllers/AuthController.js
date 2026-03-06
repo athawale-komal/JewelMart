@@ -175,16 +175,49 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// CHANGE PASSWORD
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Both old and new passwords are required' });
+    }
+
+    await UserService.changePassword(userId, oldPassword, newPassword);
+
+    return res.status(200).json({
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
 
 
+
+
+// DELETE USER (ADMIN)
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    await UserService.deleteUser(userId);
+    return res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
-
   register,
   login,
   forgotPassword,
   resetPassword,
   getAllUsers,
   getUserProfile,
-  updateProfile
+  updateProfile,
+  changePassword,
+  deleteUser
 };

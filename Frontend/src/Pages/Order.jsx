@@ -1,281 +1,178 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Clock, CheckCircle, XCircle, Truck, MapPin, Calendar, IndianRupee } from 'lucide-react';
+import { Package, Clock, CheckCircle2, XCircle, Truck, MapPin, Calendar, IndianRupee, Loader2, Search, Trash2, ArrowRight, AlertCircle, ShoppingBag, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { getOrderHistory, cancelOrder, deleteUserOrder } from '../States/Order/Action';
+import { toast } from 'react-toastify';
+
+
+
 
 const Orders = () => {
-  const [user, setUser] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { orders, loading } = useSelector((state) => state.order);
+  const { user } = useSelector((state) => state.auth);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/login');
+    if (!user) {
+      navigate('/auth');
       return;
     }
+    dispatch(getOrderHistory());
+  }, [dispatch, user, navigate]);
 
-    setUser(JSON.parse(userData));
-
-    // Load orders from localStorage (in real app, fetch from API)
-    const storedOrders = localStorage.getItem('orders');
-    if (storedOrders) {
-      setOrders(JSON.parse(storedOrders));
-    } else {
-      // Sample orders for demonstration
-      const sampleOrders = [
-        {
-          id: 'ORD-2026-001',
-          date: '2026-01-28',
-          status: 'delivered',
-          items: [
-            {
-              id: 1,
-              name: 'Classic Gold Ring',
-              price: 12000,
-              quantity: 1,
-              image: 'https://th.bing.com/th/id/OIP.yU4pGIntepYuRkxRlt_8ugHaE0?w=274&h=180&c=7&r=0&o=7&cb=defcachec2&dpr=1.3&pid=1.7&rm=3'
-            }
-          ],
-          total: 12000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK1234567890'
-        },
-        {
-          id: 'ORD-2026-002',
-          date: '2026-01-25',
-          status: 'shipped',
-          items: [
-            {
-              id: 2,
-              name: 'Diamond Ring',
-              price: 45000,
-              quantity: 1,
-              image: 'https://i.etsystatic.com/17551371/r/il/aeec05/2261981397/il_fullxfull.2261981397_6mqh.jpg'
-            },
-            {
-              id: 7,
-              name: 'Gold Earrings',
-              price: 15000,
-              quantity: 1,
-              image: 'https://tse3.mm.bing.net/th/id/OIP.q_AjccogHQBfzK19lwU1AgHaHa?cb=defcachec2&pid=ImgDet&w=184&h=184&c=7&dpr=1.3&o=7&rm=3'
-            }
-          ],
-          total: 60000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK0987654321'
-        },
-        {
-          id: 'ORD-2026-003',
-          date: '2026-01-20',
-          status: 'processing',
-          items: [
-            {
-              id: 4,
-              name: 'Traditional Gold Necklace',
-              price: 85000,
-              quantity: 1,
-              image: 'https://th.bing.com/th/id/OIP.CXdhx-UmV77tGOnFIuXY2wHaHa?w=197&h=197&c=7&r=0&o=7&cb=defcachec2&dpr=1.3&pid=1.7&rm=3'
-            }
-          ],
-          total: 85000,
-          shippingAddress: '123 Main St, Nanded, Maharashtra 431602',
-          trackingNumber: 'TRK1122334455'
-        }
-      ];
-      setOrders(sampleOrders);
-      localStorage.setItem('orders', JSON.stringify(sampleOrders));
-    }
-  }, [navigate]);
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'delivered':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
-      case 'shipped':
-        return <Truck className="w-5 h-5 text-blue-600" />;
-      case 'processing':
-        return <Clock className="w-5 h-5 text-amber-600" />;
-      case 'cancelled':
-        return <XCircle className="w-5 h-5 text-red-600" />;
-      default:
-        return <Package className="w-5 h-5 text-gray-600" />;
+  const handleCancelOrder = async (id) => {
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      try {
+        await dispatch(cancelOrder(id));
+        toast.success("Order cancelled successfully");
+      } catch (err) {
+        toast.error("Failed to cancel order");
+      }
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'delivered':
-        return 'bg-green-50 text-green-700 border-green-200';
-      case 'shipped':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'processing':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'cancelled':
-        return 'bg-red-50 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-200';
+  const handleDeleteOrder = async (id) => {
+    if (window.confirm("This will move the items to your Order History and remove this order details. Continue?")) {
+      try {
+        await dispatch(deleteUserOrder(id));
+        toast.success("Order moved to history");
+      } catch (err) {
+        toast.error("Failed to delete order");
+      }
     }
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
   };
 
-  if (!user) {
-    return null; // Will redirect in useEffect
-  }
+  const filteredOrders = orders?.filter(o =>
+    o._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    o.orderItems?.some(item => item.product?.title?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-amber-50/30 to-white pt-24">
-      <div className="max-w-7xl mx-auto px-6 lg:px-20 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-4 py-2 rounded-full mb-4">
-            <Package className="w-5 h-5" />
-            <span className="text-sm font-bold tracking-wide">ORDER HISTORY</span>
+    <div className="min-h-screen bg-[#0d0c0a] text-[#e8dfc8] pt-32 pb-20 px-6 lg:px-14" style={{ fontFamily: "'Jost', sans-serif" }}>
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-[rgba(212,175,55,0.1)] pb-12">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-8 h-[1px] bg-[#d4af37]" />
+              <span className="text-[0.65rem] tracking-[0.4em] uppercase text-[#d4af37] font-bold">Account Repository</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-light italic mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              My Orders
+            </h1>
+            <p className="text-[#8a8070] text-sm tracking-widest uppercase flex items-center gap-3">
+              Trace your acquisitions and artisan progress
+            </p>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              My Orders
-            </span>
-          </h1>
-
-          <p className="text-lg text-gray-600">
-            Track and manage your jewelry purchases
-          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#3a3528] group-focus-within:text-[#d4af37] transition-colors" />
+              <input
+                type="text"
+                placeholder="Search Order ID or Product..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 pr-6 py-4 bg-[#12100d] border border-[rgba(212,175,55,0.1)] text-xs tracking-widest uppercase outline-none focus:border-[rgba(212,175,55,0.4)] transition-all w-full md:w-80 rounded-sm"
+              />
+            </div>
+            <button
+              onClick={() => navigate('/order-history')}
+              className="p-4 bg-[rgba(212,175,55,0.05)] border border-[rgba(212,175,55,0.1)] hover:bg-[rgba(212,175,55,0.1)] transition-all"
+              title="Archived History"
+            >
+              <History className="w-5 h-5 text-[#d4af37]" />
+            </button>
+          </div>
         </div>
 
-        {/* Orders List */}
-        {orders.length === 0 ? (
-          <div className="text-center py-20">
-            <Package className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No Orders Yet</h2>
-            <p className="text-gray-600 mb-8">
-              You haven't placed any orders yet. Start shopping to see your orders here!
-            </p>
-            <a
-              href="/products"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-6 py-3 rounded-lg font-bold hover:from-amber-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-40 gap-4">
+            <Loader2 className="w-12 h-12 text-[#d4af37] animate-spin" />
+            <p className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Fetching Repository...</p>
+          </div>
+        ) : !filteredOrders || filteredOrders.length === 0 ? (
+          <div className="text-center py-32 bg-[#12100d]/50 border border-dashed border-[rgba(212,175,55,0.1)] rounded-sm">
+            <ShoppingBag className="w-12 h-12 text-[#3a3528] mx-auto mb-6" />
+            <h2 className="text-2xl font-light italic mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Repository Empty</h2>
+            <p className="text-xs text-[#6a6050] tracking-widest uppercase mb-12">Universal acquisitions not found in this segment.</p>
+            <button
+              onClick={() => navigate('/products')}
+              className="px-10 py-4 bg-[#d4af37] text-[#0d0c0a] text-[0.65rem] tracking-[0.3em] uppercase font-bold hover:shadow-2xl transition-all"
             >
-              Start Shopping
-            </a>
+              Discover Collections
+            </button>
           </div>
         ) : (
-          <div className="space-y-6">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-stone-100 overflow-hidden"
-              >
-                {/* Order Header */}
-                <div className="p-6 border-b border-stone-100 bg-gradient-to-r from-amber-50 to-yellow-50">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(order.status)}
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
-                      </div>
-                      <div className="h-6 w-px bg-stone-300"></div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">Order #{order.id}</p>
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(order.date)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Total Amount</p>
-                      <p className="text-2xl font-bold text-amber-600 flex items-center justify-end">
-                        <IndianRupee className="w-5 h-5" />
-                        {order.total.toLocaleString('en-IN')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Order Items */}
-                <div className="p-6">
-                  <div className="space-y-4">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex gap-4 items-center">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover rounded-lg border border-stone-200"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                          <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900 flex items-center">
-                            <IndianRupee className="w-4 h-4" />
-                            {item.price.toLocaleString('en-IN')}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+          <div className="space-y-12">
+            {filteredOrders.map((order) => (
+              <div key={order._id} className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] group hover:border-[rgba(212,175,55,0.3)] transition-all duration-500 rounded-sm overflow-hidden">
+                {/* Order Summary Card */}
+                <div className="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-[rgba(212,175,55,0.05)]">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Transaction ID</span>
+                    <span className="text-sm font-medium text-[#d4af37]">#{order._id.slice(-12)}</span>
+                    <span className="text-[0.55rem] tracking-[0.1em] text-[#4a4438] flex items-center gap-2 mt-1">
+                      <Calendar className="w-3 h-3" /> ACQUIRED ON {formatDate(order.createdAt)}
+                    </span>
                   </div>
 
-                  {/* Order Details */}
-                  <div className="mt-6 pt-6 border-t border-stone-100 grid md:grid-cols-2 gap-6">
-                    <div>
-                      <div className="flex items-start gap-2 mb-2">
-                        <MapPin className="w-4 h-4 text-amber-600 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900 mb-1">Shipping Address</p>
-                          <p className="text-sm text-gray-600">{order.shippingAddress}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {order.trackingNumber && (
-                      <div>
-                        <div className="flex items-start gap-2">
-                          <Truck className="w-4 h-4 text-amber-600 mt-1 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900 mb-1">Tracking Number</p>
-                            <p className="text-sm text-gray-600 font-mono">{order.trackingNumber}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  <div className="flex flex-col md:items-end">
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Current Status</span>
+                    <span className={`text-[0.65rem] tracking-[0.22em] font-bold uppercase mt-1 ${order.orderStatus === 'CANCELLED' ? 'text-red-500/60' : 'text-[#d4af37]'
+                      }`}>
+                      {order.orderStatus}
+                    </span>
                   </div>
 
-                  {/* Actions */}
-                  <div className="mt-6 pt-6 border-t border-stone-100 flex flex-wrap gap-3">
+                  <div className="md:text-right flex flex-col justify-center">
+                    <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Valuation</span>
+                    <div className="text-2xl font-light flex items-center md:justify-end gap-1">
+                      <span className="text-sm font-bold">₹</span>
+                      <span className="tracking-tighter">{order.totalDiscountPrice?.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div>
                     <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg font-semibold hover:bg-amber-100 transition-all"
+                      onClick={() => navigate(`/order/${order._id}`)}
+                      className="px-8 py-4 bg-[#d4af37] text-[#0d0c0a] text-[0.6rem] tracking-[0.3em] uppercase font-bold hover:bg-[#c49a22] transition-all flex items-center justify-center gap-2"
                     >
-                      View Details
-                    </button>
-
-                    {order.status === 'shipped' && (
-                      <button className="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-semibold hover:bg-blue-100 transition-all">
-                        Track Order
-                      </button>
-                    )}
-
-                    {order.status === 'delivered' && (
-                      <button className="px-4 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg font-semibold hover:bg-green-100 transition-all">
-                        Review Product
-                      </button>
-                    )}
-
-                    <button className="px-4 py-2 bg-stone-50 text-gray-700 border border-stone-200 rounded-lg font-semibold hover:bg-stone-100 transition-all">
-                      Download Invoice
+                      Trace Progress <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
+
+                {/* Simplified Item Preview */}
+                <div className="px-8 py-6 bg-[rgba(212,175,55,0.02)] flex gap-4 overflow-x-auto scrollbar-hide">
+                  {order.orderItems?.map((item, idx) => (
+                    <div key={idx} className="flex-shrink-0 flex items-center gap-4 bg-[#0d0c0a] p-3 border border-[rgba(212,175,55,0.05)] rounded-sm">
+                      <div className="w-12 h-12 overflow-hidden border border-[rgba(212,175,55,0.1)]">
+                        <img
+                          src={item.image || item.product?.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover grayscale-[0.5]"
+                        />
+                      </div>
+                      <div className="pr-4">
+                        <h4 className="text-[0.55rem] tracking-[0.1em] uppercase text-[#8a8070] truncate max-w-[120px]">{item.title}</h4>
+                        <p className="text-[0.5rem] text-[#3a3528]">QTY: {item.quantity}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
               </div>
             ))}
           </div>
