@@ -201,31 +201,9 @@ export const restoreAuth = () => async (dispatch) => {
 
         dispatch({ type: LOGIN_USER_SUCCESS, payload: completeUser });
 
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
         localStorage.removeItem("jwt");
         dispatch({ type: LOGOUT_USER });
     }
-<<<<<<< HEAD
-    
-    const response = await api.get('/api/jewelmart/user/profile', {
-      headers: { Authorization: `Bearer ${jwt}` },
-    });
-    
-    const userData = response.data;
-    
-    const completeUser = {
-      jwt: jwt,
-      message: 'Session restored',
-      ...userData
-    };
-    
-    dispatch({ type: LOGIN_USER_SUCCESS, payload: completeUser });
-    
-  // eslint-disable-next-line no-unused-vars
-  } catch (error) {
-    localStorage.removeItem("jwt");
-    dispatch({ type: LOGOUT_USER });
-  }
-=======
->>>>>>> 14f841b8b9ba3920c144e194f36d2231d59a6b06
 };
