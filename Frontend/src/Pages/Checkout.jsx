@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCart } from "../States/Cart/Action";
@@ -19,6 +20,7 @@ export default function Checkout() {
     });
 
     const dispatch = useDispatch();
+
     const navigate = useNavigate();
 
     // Safety checks for state selection
@@ -117,7 +119,7 @@ export default function Checkout() {
             <div className="max-w-7xl mx-auto">
                 {/* Stepper Header */}
                 <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8 relative">
-                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-[rgba(212,175,55,0.1)] -translate-y-1/2 hidden md:block z-0" />
+                    <div className="absolute top-1/2 left-0 w-full h-px bg-[rgba(212,175,55,0.1)] -translate-y-1/2 hidden md:block z-0" />
                     {[
                         { num: 1, label: "Shipping", sub: "Destination" },
                         { num: 2, label: "Review", sub: "Order Summary" },
@@ -129,7 +131,7 @@ export default function Checkout() {
                                 }`}>{s.num}</span>
                             <div className="flex flex-col">
                                 <span className="text-[0.65rem] tracking-[0.2em] uppercase font-bold">{s.label}</span>
-                                <span className={`text-[0.5rem] tracking-[0.1em] uppercase ${step >= s.num ? "text-[rgba(13,12,10,0.6)]" : "text-[#3a3528]"}`}>{s.sub}</span>
+                                <span className={`text-[0.5rem] tracking-widest uppercase ${step >= s.num ? "text-[rgba(13,12,10,0.6)]" : "text-[#3a3528]"}`}>{s.sub}</span>
                             </div>
                         </div>
                     ))}
@@ -224,7 +226,7 @@ export default function Checkout() {
                                         ))}
                                         <button
                                             onClick={() => setShowAddressForm(true)}
-                                            className="p-6 border border-dashed border-[rgba(212,175,55,0.2)] bg-transparent hover:bg-[rgba(212,175,55,0.02)] transition-all flex flex-col items-center justify-center gap-4 text-[#8a8070] hover:text-[#d4af37] rounded-sm group min-h-[180px]"
+                                            className="p-6 border border-dashed border-[rgba(212,175,55,0.2)] bg-transparent hover:bg-[rgba(212,175,55,0.02)] transition-all flex flex-col items-center justify-center gap-4 text-[#8a8070] hover:text-[#d4af37] rounded-sm group min-h-45"
                                         >
                                             <div className="w-12 h-12 rounded-full border border-[rgba(212,175,55,0.1)] flex items-center justify-center group-hover:border-[#d4af37] transition-all">
                                                 <Plus className="w-5 h-5" />
@@ -245,12 +247,12 @@ export default function Checkout() {
                             <div className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] rounded-sm overflow-hidden">
                                 {cartItems?.map((item) => (
                                     <div key={item._id} className="p-6 border-b border-[rgba(212,175,55,0.05)] last:border-0 flex gap-6 items-center">
-                                        <div className="w-20 aspect-[4/5] overflow-hidden border border-[rgba(212,175,55,0.1)]">
+                                        <div className="w-20 aspect-4/5 overflow-hidden border border-[rgba(212,175,55,0.1)]">
                                             <img src={item.product?.images[0]} className="w-full h-full object-cover grayscale-[0.3]" alt="" />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="text-sm tracking-[0.1em] uppercase font-light text-[#e8dfc8]">{item.product?.title}</h4>
-                                            <p className="text-[0.65rem] text-[#8a8070] tracking-[0.1em] uppercase mt-1">Quantity: {item.quantity}</p>
+                                            <h4 className="text-sm tracking-widest uppercase font-light text-[#e8dfc8]">{item.product?.title}</h4>
+                                            <p className="text-[0.65rem] text-[#8a8070] tracking-widest uppercase mt-1">Quantity: {item.quantity}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[#d4af37] font-medium text-sm">₹{item.discountedPrice?.toLocaleString()}</p>
@@ -270,7 +272,7 @@ export default function Checkout() {
                                     </button>
                                     <button
                                         onClick={() => setStep(3)}
-                                        className="flex-[2] py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3"
+                                        className="flex-2 py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] transition-all flex items-center justify-center gap-3"
                                     >
                                         Proceed to Secure Payment <ArrowRight className="w-4 h-4" />
                                     </button>
@@ -285,7 +287,7 @@ export default function Checkout() {
                             <div className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] p-10 rounded-sm text-center">
                                 <CreditCard className="w-12 h-12 text-[#d4af37] mx-auto mb-6 opacity-40" />
                                 <h3 className="text-xl font-light mb-4">Secured via Razorpay</h3>
-                                <p className="text-xs text-[#8a8070] leading-relaxed max-w-sm mx-auto mb-10 tracking-[0.1em] uppercase">
+                                <p className="text-xs text-[#8a8070] leading-relaxed max-w-sm mx-auto mb-10 tracking-widest uppercase">
                                     You will be redirected to our encrypted settlement portal to complete your acquisition with Artisan Security protocols.
                                 </p>
 
@@ -299,7 +301,7 @@ export default function Checkout() {
                                     <button
                                         onClick={handlePlaceOrder}
                                         disabled={paymentState.loading || orderState.loading}
-                                        className="flex-[2] py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                        className="flex-2 py-5 bg-[#d4af37] text-[#0d0c0a] text-[0.7rem] tracking-[0.4em] uppercase font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                     >
                                         {(paymentState.loading || orderState.loading) ? <Loader2 className="animate-spin w-5 h-5" /> : "Authorize Payment Session"}
                                     </button>

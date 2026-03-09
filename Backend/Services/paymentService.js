@@ -11,7 +11,7 @@ const createPaymentLink = async (orderId) => {
   const mobile =
     order.user.mobile && String(order.user.mobile).length === 10
       ? String(order.user.mobile)
-      : "9999999999";
+      : "9989905678";
 
   const paymentLink = await razorpay.paymentLink.create({
     amount: order.totalDiscountPrice * 100,

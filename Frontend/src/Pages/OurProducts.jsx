@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { findProducts } from "../States/Products/Action";
-import { addToWishlist } from "../States/Wishlist/Action";
+// import { addToWishlist } from "../States/Wishlist/Action";
 import { addItemToCart } from "../States/Cart/Action";
 import { useNavigate } from "react-router-dom";
 import { Heart, Loader2, ShoppingCart } from "lucide-react";
@@ -65,7 +65,7 @@ const OurProduct = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50">
+    <div className="min-h-screen bg-linear-to-br from-amber-50 via-white to-rose-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <video
@@ -73,12 +73,12 @@ const OurProduct = () => {
           muted
           loop
           playsInline
-          className="w-full h-[450px] object-cover"
+          className="w-full h-112.5 object-cover"
         >
           <source src="\canva-URFOXqRL62M.mp4" type="video/mp4" />
         </video>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-transparent flex items-center px-8 md:px-16">
+        <div className="absolute inset-0 bg-linear-to-r from-slate-900/80 via-slate-800/60 to-transparent flex items-center px-8 md:px-16">
           <div className="max-w-2xl animate-fade-in">
             <h1 className="text-5xl md:text-6xl font-bold font-serif text-white mb-4">
               <span className="text-rose-500 text-6xl md:text-7xl">Jewel</span>Mart
@@ -94,7 +94,7 @@ const OurProduct = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-12">
+      <div className="max-w-400 mx-auto px-4 md:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* LEFT FILTER SIDEBAR */}
@@ -125,7 +125,7 @@ const OurProduct = () => {
                     step="1000"
                     value={priceRange.min}
                     onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) })}
-                    className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-400 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-2 bg-linear-to-r from-indigo-200 to-indigo-400 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
 
                   <div className="flex items-center justify-between text-sm text-slate-600 mt-4">
@@ -138,7 +138,7 @@ const OurProduct = () => {
                     step="1000"
                     value={priceRange.max}
                     onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) })}
-                    className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                    className="w-full h-2 bg-linear-to-r from-indigo-200 to-indigo-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                   />
                 </div>
               </div>
@@ -187,7 +187,7 @@ const OurProduct = () => {
               {/* Reset Button */}
               <button
                 onClick={resetFilters}
-                className="w-full bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 text-amber-800 font-semibold py-3 px-6 rounded-xl border-2 border-amber-200 transition-all duration-200 hover:shadow-md"
+                className="w-full bg-linear-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 text-amber-800 font-semibold py-3 px-6 rounded-xl border-2 border-amber-200 transition-all duration-200 hover:shadow-md"
               >
                 Reset Filters
               </button>
@@ -295,7 +295,7 @@ const OurProduct = () => {
                           >
                             {item.title || item.name}
                           </h3>
-                          <p className="text-sm text-slate-600 mb-4 line-clamp-2 flex-grow">
+                          <p className="text-sm text-slate-600 mb-4 line-clamp-2 grow">
                             {item.description}
                           </p>
                           <div className="mb-4">
@@ -332,7 +332,7 @@ const OurProduct = () => {
             {/* No Results Message */}
             {filteredProducts.length === 0 && (
               <div className="text-center py-20">
-                <div className="inline-block p-8 bg-gradient-to-br from-amber-50 to-rose-50 rounded-3xl">
+                <div className="inline-block p-8 bg-linear-to-br from-amber-50 to-rose-50 rounded-3xl">
                   <svg className="w-20 h-20 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
