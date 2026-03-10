@@ -40,7 +40,7 @@ const ProductCard = ({ product }) => {
     return (
         <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 flex flex-col h-full">
             <div
-                className="relative overflow-hidden bg-stone-100 h-[230px] cursor-pointer"
+                className="relative overflow-hidden bg-stone-100 h-57.5 cursor-pointer"
                 onClick={() => navigate(`/product/${product._id}`)}
             >
                 {/* Product Image */}
@@ -90,7 +90,7 @@ const ProductCard = ({ product }) => {
                 </div>
             </div>
 
-            <div className="p-6 flex flex-col flex-grow">
+            <div className="p-6 flex flex-col grow">
                 <div className="mb-3 flex items-center justify-between">
                     <span className="text-[0.6rem] font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 uppercase tracking-widest">
                         {product.category?.name || product.category || "Jewellery"}

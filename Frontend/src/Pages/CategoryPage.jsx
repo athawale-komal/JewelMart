@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 import { ArrowRight, Filter, SlidersHorizontal, Grid, List, Star, ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import ProductCard from '../Components/Product/ProductCard';
@@ -65,7 +68,7 @@ const CategoryPage = () => {
         break;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setFilteredProducts(filtered);
   }, [category, sortBy, priceRange, selectedPurity]);
 
@@ -77,15 +80,15 @@ const CategoryPage = () => {
       <section className="relative h-75 overflow-hidden mb-12">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2000"
+          src='https://static.vecteezy.com/system/resources/previews/035/081/140/non_2x/women-s-jewelry-gold-chain-trendy-jewelry-on-a-silk-background-photo.JPG'
             alt={categoryName}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-linear-to-r from-slate-900/90 via-slate-900/70 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-l from-slate-900/90 via-slate-900/70 to-transparent"></div>
         </div>
 
         <div className="relative h-full flex items-center">
-          <div className="max-w-7xl mx-auto px-6 lg:px-20 w-full">
+          <div className="max-w-7xl mx-auto pl-222 w-full">
             <div className="inline-flex items-center gap-2 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 px-4 py-2 rounded-full mb-4">
               <Sparkles className="w-5 h-5 text-amber-300" />
               <span className="text-amber-100 font-semibold text-sm tracking-wide">COLLECTION</span>
