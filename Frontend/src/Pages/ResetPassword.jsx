@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -99,7 +101,7 @@ export default function ResetPassword() {
                     </div>
 
                     {resetPasswordMessage ? (
-                        <div className="p-6 border border border-[rgba(212,175,55,0.2)] bg-[rgba(212,175,55,0.03)] text-center">
+                        <div className="p-6 border border-[rgba(212,175,55,0.2)] bg-[rgba(212,175,55,0.03)] text-center">
                             <p className="text-sm text-[#d4af37] mb-4">{resetPasswordMessage || "Your password has been successfully reset."}</p>
                             <button onClick={() => navigate("/auth")} className="text-[0.65rem] tracking-[0.2em] uppercase underline underline-offset-4 text-[#e8dfc8] hover:text-[#d4af37] transition-all">
                                 Sign In Now

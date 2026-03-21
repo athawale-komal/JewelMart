@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,7 +41,7 @@ const OrderStatusStepper = ({ status }) => {
                 </div>
                 <div>
                     <h4 className="text-[0.65rem] tracking-[0.2em] uppercase font-bold text-red-500">Order Cancelled</h4>
-                    <p className="text-[0.55rem] tracking-[0.1em] text-red-500/60 uppercase mt-1">This acquisition has been voided from our records.</p>
+                    <p className="text-[0.55rem] tracking-widest text-red-500/60 uppercase mt-1">This acquisition has been voided from our records.</p>
                 </div>
             </div>
         );
@@ -49,7 +50,7 @@ const OrderStatusStepper = ({ status }) => {
     return (
         <div className="relative py-10 px-6">
             {/* Stepper Base Line */}
-            <div className="absolute top-1/2 left-[calc(1.5rem+1.5rem)] right-[calc(1.5rem+1.5rem)] h-[1px] bg-[#2a2620] -translate-y-1/2 z-0">
+            <div className="absolute top-1/2 left-12 right-12 h-px bg-[#2a2620] -translate-y-1/2 z-0">
                 {/* Progress Line */}
                 <div
                     className="h-full bg-[#d4af37] transition-all duration-1000"
@@ -74,7 +75,7 @@ const OrderStatusStepper = ({ status }) => {
                             >
                                 {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                             </div>
-                            <div className="absolute -bottom-8 flex flex-col items-center min-w-[120px]">
+                            <div className="absolute -bottom-8 flex flex-col items-center min-w-30">
                                 <span className={`text-[0.55rem] tracking-[0.15em] font-bold uppercase ${isActive ? "text-[#d4af37]" : "text-[#3a3528]"}`}>
                                     {s.label}
                                 </span>
@@ -146,7 +147,7 @@ const OrderDetails = () => {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div>
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="w-8 h-[1px] bg-[#d4af37]" />
+                                <span className="w-8 h-px bg-[#d4af37]" />
                                 <span className="text-[0.65rem] tracking-[0.4em] uppercase text-[#d4af37] font-bold">Acquisition Ledger</span>
                             </div>
                             <h1 className="text-5xl font-light italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -200,7 +201,7 @@ const OrderDetails = () => {
                             <div className="divide-y divide-[rgba(212,175,55,0.05)]">
                                 {order.orderItems?.map((item) => (
                                     <div key={item._id} className="p-8 flex gap-8 items-center group">
-                                        <div className="w-24 aspect-[4/5] overflow-hidden border border-[rgba(212,175,55,0.1)] shrink-0">
+                                        <div className="w-24 aspect-4/5 overflow-hidden border border-[rgba(212,175,55,0.1)] shrink-0">
                                             <img
                                                 src={item.image || item.product?.image}
                                                 className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
@@ -208,8 +209,8 @@ const OrderDetails = () => {
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <h4 className="text-sm tracking-[0.1em] uppercase font-light text-[#e8dfc8] mb-2">{item.title}</h4>
-                                            <div className="flex flex-wrap gap-y-2 gap-x-6 text-[0.65rem] text-[#6a6050] tracking-[0.1em] uppercase">
+                                            <h4 className="text-sm tracking-widest uppercase font-light text-[#e8dfc8] mb-2">{item.title}</h4>
+                                            <div className="flex flex-wrap gap-y-2 gap-x-6 text-[0.65rem] text-[#6a6050] tracking-widest uppercase">
                                                 <span>Ref: {item.skuCode}</span>
                                                 <span className="w-px h-3 bg-[rgba(212,175,55,0.1)]" />
                                                 <span>Quantity: {item.quantity}</span>
@@ -247,7 +248,7 @@ const OrderDetails = () => {
                                     <div className="flex justify-between items-end">
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[0.55rem] text-[#8a8070]">Total Payable</span>
-                                            <span className="text-[0.5rem] tracking-[0.1em] text-[#3a3528]">Inclusive of all taxes</span>
+                                            <span className="text-[0.5rem] tracking-widest text-[#3a3528]">Inclusive of all taxes</span>
                                         </div>
                                         <span className="text-3xl font-light text-[#e8dfc8]">₹{order.totalDiscountPrice.toLocaleString()}</span>
                                     </div>

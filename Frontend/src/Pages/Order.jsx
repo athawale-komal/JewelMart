@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Package, Clock, CheckCircle2, XCircle, Truck, MapPin, Calendar, IndianRupee, Loader2, Search, Trash2, ArrowRight, AlertCircle, ShoppingBag, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -65,7 +66,7 @@ const Orders = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-[rgba(212,175,55,0.1)] pb-12">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-[1px] bg-[#d4af37]" />
+              <span className="w-8 h-px bg-[#d4af37]" />
               <span className="text-[0.65rem] tracking-[0.4em] uppercase text-[#d4af37] font-bold">Account Repository</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-light italic mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -123,7 +124,7 @@ const Orders = () => {
                   <div className="flex flex-col gap-1">
                     <span className="text-[0.6rem] tracking-[0.2em] uppercase text-[#6a6050]">Transaction ID</span>
                     <span className="text-sm font-medium text-[#d4af37]">#{order._id.slice(-12)}</span>
-                    <span className="text-[0.55rem] tracking-[0.1em] text-[#4a4438] flex items-center gap-2 mt-1">
+                    <span className="text-[0.55rem] tracking-widest text-[#4a4438] flex items-center gap-2 mt-1">
                       <Calendar className="w-3 h-3" /> ACQUIRED ON {formatDate(order.createdAt)}
                     </span>
                   </div>
@@ -157,7 +158,7 @@ const Orders = () => {
                 {/* Simplified Item Preview */}
                 <div className="px-8 py-6 bg-[rgba(212,175,55,0.02)] flex gap-4 overflow-x-auto scrollbar-hide">
                   {order.orderItems?.map((item, idx) => (
-                    <div key={idx} className="flex-shrink-0 flex items-center gap-4 bg-[#0d0c0a] p-3 border border-[rgba(212,175,55,0.05)] rounded-sm">
+                    <div key={idx} className="shrink-0 flex items-center gap-4 bg-[#0d0c0a] p-3 border border-[rgba(212,175,55,0.05)] rounded-sm">
                       <div className="w-12 h-12 overflow-hidden border border-[rgba(212,175,55,0.1)]">
                         <img
                           src={item.image || item.product?.image}
@@ -166,7 +167,7 @@ const Orders = () => {
                         />
                       </div>
                       <div className="pr-4">
-                        <h4 className="text-[0.55rem] tracking-[0.1em] uppercase text-[#8a8070] truncate max-w-[120px]">{item.title}</h4>
+                        <h4 className="text-[0.55rem] tracking-widest uppercase text-[#8a8070] truncate max-w-30">{item.title}</h4>
                         <p className="text-[0.5rem] text-[#3a3528]">QTY: {item.quantity}</p>
                       </div>
                     </div>

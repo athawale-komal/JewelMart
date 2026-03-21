@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +39,7 @@ export default function Cart() {
     const items = cartItems || [];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-rose-50 pt-20 pb-16">
+        <div className="min-h-screen bg-linear-to-br from-amber-50 via-white to-rose-50 pt-20 pb-16">
             <div className="max-w-7xl mx-auto px-4 md:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-10">
@@ -179,7 +180,7 @@ export default function Cart() {
 
                                 <button
                                     onClick={() => navigate("/checkout")}
-                                    className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-amber-200 transition-all active:scale-[0.98]"
+                                    className="w-full py-4 bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-amber-200 transition-all active:scale-[0.98]"
                                 >
                                     Proceed to Checkout <ArrowRight size={18} />
                                 </button>

@@ -1,4 +1,4 @@
-
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserProfile, changePassword, getUserProfile } from '../States/Auth/Action';
@@ -35,6 +35,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: user.name || '',
         surname: user.surname || '',

@@ -170,7 +170,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-16">
             {loading ? (
               [...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse bg-white/5 border border-white/10 h-[450px] rounded-2xl"></div>
+                <div key={i} className="animate-pulse bg-white/5 border border-white/10 h-112.5 rounded-2xl"></div>
               ))
             ) : (
               featuredProducts.map((product, index) => (

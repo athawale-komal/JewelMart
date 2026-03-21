@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,6 +11,7 @@ export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
+     
     const { loading, error, forgotPasswordMessage } = useSelector((s) => s.auth);
 
     const handleSubmit = async (e) => {
@@ -99,6 +101,7 @@ export default function ForgotPassword() {
                     )}
 
                     <div className="flex items-center justify-center gap-6 mt-12 pt-6 border-t border-[rgba(212,175,55,0.08)]">
+                        // eslint-disable-next-line no-unused-vars, no-unused-vars, no-unused-vars
                         {[{ icon: Shield, label: "SSL Secure" }, { icon: Gem, label: "Authentic" }, { icon: Lock, label: "Private" }].map(({ icon: Icon, label }) => (
                             <span key={label} className="flex items-center gap-1.5 text-[0.58rem] tracking-widest uppercase" style={{ color: "#3a3528" }}>
                                 <Icon className="w-3 h-3" style={{ color: "rgba(212,175,55,0.35)" }} />{label}

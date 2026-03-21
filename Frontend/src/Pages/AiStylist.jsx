@@ -34,7 +34,7 @@ const AiStylist = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white px-6 py-10">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-pink-50 to-white px-6 py-10">
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8 md:p-10">
 
         {/* Header */}

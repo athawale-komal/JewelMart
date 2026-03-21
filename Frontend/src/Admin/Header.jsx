@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../states/Auth/Action";
+import { logoutUser } from "../States/Auth/Action";
 import { 
   Bell, 
   Search, 

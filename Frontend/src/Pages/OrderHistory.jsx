@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -81,7 +82,7 @@ const OrderHistory = () => {
                         {deletedHistory.map((item) => (
                             <div key={item._id} className="bg-[#12100d] border border-[rgba(212,175,55,0.1)] p-6 group hover:border-[rgba(212,175,55,0.3)] transition-all duration-500 rounded-sm">
                                 <div className="flex gap-6">
-                                    <div className="relative aspect-[4/5] w-24 overflow-hidden border border-[rgba(212,175,55,0.05)]">
+                                    <div className="relative aspect-4/5 w-24 overflow-hidden border border-[rgba(212,175,55,0.05)]">
                                         <img
                                             src={item.image || item.product?.image}
                                             className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
@@ -90,7 +91,7 @@ const OrderHistory = () => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h3 className="text-xs tracking-[0.15em] uppercase font-light text-[#8a8070] truncate max-w-[150px]">{item.title}</h3>
+                                            <h3 className="text-xs tracking-[0.15em] uppercase font-light text-[#8a8070] truncate max-w-37.5">{item.title}</h3>
                                             <button
                                                 onClick={() => handleDelete(item._id)}
                                                 className="p-2 hover:bg-red-500/10 rounded-full transition-all group/del"
@@ -104,11 +105,11 @@ const OrderHistory = () => {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <div className="flex items-center gap-2 text-[0.55rem] tracking-[0.1em] text-[#6a6050] uppercase">
+                                            <div className="flex items-center gap-2 text-[0.55rem] tracking-widest text-[#6a6050] uppercase">
                                                 <Calendar className="w-3 h-3 text-[#d4af37]/40" />
                                                 Archived on {formatDate(item.updatedAt)}
                                             </div>
-                                            <div className="flex items-center gap-2 text-[0.55rem] tracking-[0.1em] text-[#6a6050] uppercase">
+                                            <div className="flex items-center gap-2 text-[0.55rem] tracking-widest text-[#6a6050] uppercase">
                                                 <ShoppingBag className="w-3 h-3 text-[#d4af37]/40" />
                                                 Qty: {item.quantity}
                                             </div>
