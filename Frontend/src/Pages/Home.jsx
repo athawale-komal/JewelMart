@@ -138,9 +138,14 @@ const Home = () => {
 
 
       {/* FEATURED PRODUCTS - PROFESSIONAL SHOWCASE */}
-      <section className="py-24 bg-linear-to-b from-white via-amber-50/30 to-white relative overflow-hidden">
+      <section className="py-24 bg-linear-to-br from-amber-50/40 via-amber-50/20 to-amber-50/40 relative overflow-hidden">
         {/* Background Decoration */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-5">
+          <img
+            src='https://img.freepik.com/premium-photo/store-window-displays-several-necklaces-including-one-that-says-gold_1088224-197557.jpg'
+            alt={loading}
+            className="w-full h-full object-cover"
+          />
           <div className="absolute -top-1/2 -left-1/4 w-1/2 h-full bg-linear-to-br from-amber-400 to-yellow-600 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-1/2 -right-1/4 w-1/2 h-full bg-linear-to-tl from-orange-400 to-amber-600 rounded-full blur-3xl"></div>
         </div>

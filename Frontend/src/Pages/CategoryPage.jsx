@@ -80,7 +80,7 @@ const CategoryPage = () => {
       <section className="relative h-75 overflow-hidden mb-12">
         <div className="absolute inset-0">
           <img
-            src='https://static.vecteezy.com/system/resources/previews/035/081/140/non_2x/women-s-jewelry-gold-chain-trendy-jewelry-on-a-silk-background-photo.JPG'
+            src='https://quotewords.com/wp-content/uploads/30158-jewelry-quotes.jpg'
             alt={categoryName}
             className="w-full h-full object-cover"
           />
